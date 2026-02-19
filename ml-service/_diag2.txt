@@ -1,0 +1,26 @@
+--- Normal ---
+  Temperature             raw=   30.00  dev=  0.1669
+  Humidity                raw=   85.00  dev=  1.3217
+  Rainfall                raw=    5.00  dev=  0.5809
+  AQI                     raw=   55.00  dev=  1.2923
+  Water_Quality_Index     raw=    8.90  dev=  1.4485
+  Cases_Rolling_7D        raw=    2.86  dev=  1.6177 <<<
+  Rainfall_Lag_7D         raw=    5.00  dev=  0.5803
+
+--- Heatwave ---
+  Temperature             raw=   52.00  dev=  2.1032 <<<
+  Humidity                raw=   85.00  dev=  1.3217
+  Rainfall                raw=    0.00  dev=  0.7842
+  AQI                     raw=   55.00  dev=  1.2923
+  Water_Quality_Index     raw=    8.90  dev=  1.4485
+  Cases_Rolling_7D        raw=    6.43  dev=  1.3941
+  Rainfall_Lag_7D         raw=    0.00  dev=  0.7834
+
+--- Flood ---
+  Temperature             raw=   25.00  dev=  0.2732
+  Humidity                raw=   85.00  dev=  1.3217
+  Rainfall                raw=  450.00  dev= 17.5063 <<<
+  AQI                     raw=   55.00  dev=  1.2923
+  Water_Quality_Index     raw=    8.90  dev=  1.4485
+  Cases_Rolling_7D        raw=   11.43  dev=  1.0813
+  Rainfall_Lag_7D         raw=  450.00  dev= 17.5010

@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: kavach
+      POSTGRES_PASSWORD: kavach_secret
+      POSTGRES_DB: kavach
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U kavach" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: postgresql://kavach:kavach_secret@postgres:5432/kavach
+      JWT_SECRET: kavach_dev_jwt_secret_min_32_chars_long
+      ML_SERVICE_URL: http://ml-service:8000
+      NODE_ENV: development
+      RISK_ALERT_THRESHOLD: "0.7"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  ml-service:
+    build: ./ml-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./ml-service:/app
+    environment:
+      PYTHONUNBUFFERED: "1"
+
+volumes:
+  postgres_data:

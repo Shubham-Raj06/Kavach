@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import predict, anomaly, health, forecast, hotspots
+from app.routes import predict, anomaly, health, forecast, hotspots, simulate, resources
 
 app = FastAPI(
     title="Kavach ML Service",
@@ -15,8 +15,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(health.router, tags=["Health"])
-app.include_router(predict.router, prefix="/predict", tags=["Prediction"])
-app.include_router(anomaly.router, prefix="/anomaly", tags=["Anomaly"])
-app.include_router(forecast.router, prefix="/forecast", tags=["Forecast"])
-app.include_router(hotspots.router, prefix="/hotspots", tags=["Hotspots"])
+app.include_router(health.router,    tags=["Health"])
+app.include_router(predict.router,   prefix="/predict",   tags=["Prediction"])
+app.include_router(anomaly.router,   prefix="/anomaly",   tags=["Anomaly"])
+app.include_router(forecast.router,  prefix="/forecast",  tags=["Forecast"])
+app.include_router(hotspots.router,  prefix="/hotspots",  tags=["Hotspots"])
+app.include_router(simulate.router,  prefix="/simulate",  tags=["Simulation"])
+app.include_router(resources.router, prefix="/resources", tags=["Resources"])

@@ -1,0 +1,81 @@
+/**
+ * i18n/en.json — English strings
+ */
+{
+    "home": {
+        "riskScore": "Ward Risk Score",
+        "riskLevel": "Risk Level",
+        "whatToday": "What to do today",
+        "safetyChecklist": "Safety Checklist",
+        "latestAlert": "Latest Alert",
+        "noAlerts": "No active alerts for your ward.",
+        "pullRefresh": "Pull to refresh",
+        "demoMode": "Demo Mode"
+    },
+    "alerts": {
+        "title": "Health Alerts",
+        "filterAll": "ALL",
+        "filterCritical": "CRITICAL",
+        "filterHigh": "HIGH",
+        "filterMedium": "MEDIUM",
+        "noAlerts": "No alerts for this level.",
+        "pastAlerts": "Past Alerts"
+    },
+    "report": {
+        "title": "Report Issue",
+        "symptomLabel": "What symptom?",
+        "severityLabel": "Severity",
+        "descLabel": "Additional details (optional)",
+        "wardLabel": "Your Ward Number",
+        "photoLabel": "Add Photo",
+        "photoHint": "Stored locally only. Never uploaded.",
+        "submit": "Submit Report",
+        "submitting": "Submitting...",
+        "success": "Report submitted. Thank you for keeping your community safe.",
+        "savedOffline": "Saved offline. Will submit when connected."
+    },
+    "profile": {
+        "title": "My Profile",
+        "editProfile": "Edit Profile",
+        "saveChanges": "Save Changes",
+        "wardNumber": "Ward Number",
+        "wardRequired": "Ward number is required for accurate risk scoring.",
+        "signOut": "Sign Out",
+        "trustTitle": "How Kavach Works",
+        "privacyGuarantee": "Your health data is never stored or shared."
+    },
+    "trust": {
+        "title": "How Kavach Works",
+        "step1": "Citizens report symptoms anonymously",
+        "step2": "Our AI analyses patterns with water + weather data",
+        "step3": "Risk score calculated for your ward",
+        "step4": "Alerts broadcast to citizens and hospitals",
+        "modelVersion": "Model Version",
+        "dataSources": "Data Sources",
+        "noPersonalData": "Zero personal health data stored",
+        "shapTitle": "Why your ward is scored this way"
+    },
+    "community": {
+        "title": "Community",
+        "post": "Post",
+        "placeholder": "Report something in your area...",
+        "reportPost": "Report Post",
+        "reportedSuccess": "Post reported. Our team will review it.",
+        "toxicWarning": "Your message was blocked by our safety filter."
+    },
+    "hospitals": {
+        "nearest": "Nearest Hospitals",
+        "km": "km",
+        "beds": "beds",
+        "call": "Call",
+        "icuBeds": "ICU Beds"
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Something went wrong.",
+        "retry": "Retry",
+        "cancel": "Cancel",
+        "save": "Save",
+        "ok": "OK"
+    }
+}

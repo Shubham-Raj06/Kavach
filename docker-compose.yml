@@ -1,47 +1,65 @@
 version: '3.9'
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: kavach
-      POSTGRES_PASSWORD: kavach_secret
-      POSTGRES_DB: kavach
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U kavach" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
 
+  # ── Backend API ──────────────────────────────────────────────────────────────
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: kavach-backend
     ports:
       - "5000:5000"
     environment:
-      DATABASE_URL: postgresql://kavach:kavach_secret@postgres:5432/kavach
-      JWT_SECRET: kavach_dev_jwt_secret_min_32_chars_long
-      ML_SERVICE_URL: http://ml-service:8000
-      NODE_ENV: development
-      RISK_ALERT_THRESHOLD: "0.7"
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - UPSTASH_REDIS_REST_URL=${UPSTASH_REDIS_REST_URL}
+      - UPSTASH_REDIS_REST_TOKEN=${UPSTASH_REDIS_REST_TOKEN}
+      - ML_SERVICE_URL=http://ml-service:8001
     depends_on:
-      postgres:
+      ml-service:
         condition: service_healthy
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:5000/health" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
+  # ── ML Service ───────────────────────────────────────────────────────────────
   ml-service:
-    build: ./ml-service
+    build:
+      context: ./ml-service
+      dockerfile: Dockerfile
+    container_name: kavach-ml
     ports:
-      - "8000:8000"
-    volumes:
-      - ./ml-service:/app
-    environment:
-      PYTHONUNBUFFERED: "1"
+      - "8001:8001"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8001/health').raise_for_status()" ]
+      interval: 30s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
 
-volumes:
-  postgres_data:
+  # ── Frontend Dashboard ───────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: kavach-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:5000/api
+      - NEXT_PUBLIC_ML_SERVICE_URL=http://ml-service:8001
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+networks:
+  default:
+    name: kavach-network

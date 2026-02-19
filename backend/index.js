@@ -1,19 +1,25 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./src/config/swagger');
 
 const logger = require('./src/utils/logger');
-const { connectDB } = require('./src/utils/db');   // ← Mongoose connection
+const { connectDB } = require('./src/utils/db');
 const errorHandler = require('./src/middleware/errorHandler');
+const { sanitizeInput, detectPII, securityHeaders } = require('./src/middleware/security');
 
-// Connect to MongoDB (non-blocking — server starts regardless)
+// ─── Database ──────────────────────────────────────────────────────────────
 connectDB();
 
-// Routes
+// ─── Routes ────────────────────────────────────────────────────────────────
 const authRoutes = require('./src/routes/auth');
 const adminRoutes = require('./src/routes/admin');
 const hospitalRoutes = require('./src/routes/hospital');
@@ -24,43 +30,84 @@ const riskRoutes = require('./src/routes/risk');
 const alertRoutes = require('./src/routes/alerts');
 const wardRoutes = require('./src/routes/wards');
 const hotspotRoutes = require('./src/routes/hotspots');
+const communityRoutes = require('./src/routes/community');
+const ingestionRoutes = require('./src/routes/ingestion');  // Phase 1 — data pipelines
+const governanceRoutes = require('./src/routes/governance'); // Phase 8 — model governance
 
 const app = express();
+const server = http.createServer(app);
+
+// ─── Socket.io ─────────────────────────────────────────────────────────────
+const io = new Server(server, {
+  cors: {
+    origin: process.env.NODE_ENV === 'production'
+      ? process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000']
+      : true,
+    credentials: true,
+  },
+  pingTimeout: 20000,
+  pingInterval: 10000,
+});
+
+// Make io available to route handlers (e.g. for real-time broadcast after ingestion)
+app.set('io', io);
+
+// Phase 4: initialise ward/dashboard/admin rooms + FCM registration
+const { initSocketManager } = require('./src/services/socketManager');
+initSocketManager(io);
 
 // ─── Security Middleware ───────────────────────────────────────────────────
 app.use(helmet());
+app.use(securityHeaders);
 app.use(cors({
   origin: process.env.NODE_ENV === 'production'
     ? process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000']
-    : true,   // Allow all origins in development (Expo Go uses dynamic LAN IPs)
+    : true,
   credentials: true,
 }));
 
 // ─── Rate Limiting ─────────────────────────────────────────────────────────
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200,
+app.use('/api/', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { error: 'Too many requests, please try again later.' },
-});
-app.use('/api/', limiter);
+}));
 
-// ─── Body Parsing + Cookies ───────────────────────────────────────────────────
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Tighter limit for write operations
+app.use('/api/citizen', rateLimit({ windowMs: 60 * 1000, max: 30, message: { error: 'Too many reports' } }));
+app.use('/api/community', rateLimit({ windowMs: 60 * 1000, max: 20, message: { error: 'Too many posts' } }));
+
+// ─── Body Parsing + Security ──────────────────────────────────────────────
+app.use(express.json({ limit: '1mb' }));  // tighten from 10mb
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser());
+app.use(compression()); // Phase 9: response compression
+app.use(sanitizeInput); // Phase 6: XSS + NoSQL injection prevention
+app.use(detectPII);     // Phase 6: log PII patterns in production
 
 // ─── Logging ───────────────────────────────────────────────────────────────
 app.use(morgan('combined', {
   stream: { write: (msg) => logger.info(msg.trim()) },
+  skip: (req) => req.path === '/health', // don't spam health check logs
 }));
 
-// ─── Health Check ──────────────────────────────────────────────────────────
-app.get('/health', (req, res) => {
+// ─── Enhanced Health Check ─────────────────────────────────────────────────
+app.get('/health', async (req, res) => {
+  const { getCircuitBreakerStatus } = require('./src/services/mlInferenceService');
+  const mongoose = require('mongoose');
+
   res.json({
     status: 'ok',
     service: 'kavach-backend',
+    version: process.env.npm_package_version || '2.0.0',
     timestamp: new Date().toISOString(),
-    version: '1.0.0',
+    uptime: Math.round(process.uptime()),
+    env: process.env.NODE_ENV,
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    mlCircuit: getCircuitBreakerStatus(),
+    memory: process.memoryUsage().rss,
   });
 });
 
@@ -75,6 +122,17 @@ app.use('/api/risk', riskRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/wards', wardRoutes);
 app.use('/api/hotspots', hotspotRoutes);
+app.use('/api/community', communityRoutes);
+app.use('/api/ingestion', ingestionRoutes);  // Phase 1 — real data ingestion
+app.use('/api/governance', governanceRoutes); // Phase 8 — model governance
+
+// ─── Swagger Docs ─────────────────────────────────────────────────────────
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  customSiteTitle: 'Kavach API Docs',
+  customCss: '.swagger-ui .topbar { background: #0f172a; } .swagger-ui .topbar-wrapper img { content: none; } .swagger-ui .topbar-wrapper::before { content: "🛡️ Kavach API"; color: white; font-size: 20px; font-weight: bold; }',
+  swaggerOptions: { persistAuthorization: true },
+}));
+app.get('/api-docs.json', (req, res) => res.json(swaggerSpec));
 
 // ─── 404 Handler ───────────────────────────────────────────────────────────
 app.use((req, res) => {
@@ -84,10 +142,20 @@ app.use((req, res) => {
 // ─── Global Error Handler ──────────────────────────────────────────────────
 app.use(errorHandler);
 
+// ─── Background Jobs ───────────────────────────────────────────────────────
+// Phase 3 & 4: start all scheduled ingestion + ML inference jobs
+const { startAllJobs } = require('./src/jobs');
+// Legacy daily risk snapshot (keeps ward risk history)
+require('./src/jobs/snapshotRisk');
+// Start new scheduler after DB is ready (~2s delay handled internally)
+startAllJobs(io);
+
 // ─── Start Server ──────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  logger.info(`🚀 Kavach backend running on port ${PORT} [${process.env.NODE_ENV}]`);
+server.listen(PORT, () => {
+  logger.info(`🚀 Kavach backend v2.0 running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
+  logger.info(`📡 Socket.io ready — ward/dashboard/admin rooms initialized`);
+  logger.info(`🔄 Job scheduler started — weather(3h), water(24h), features+ML(1h), drift(6h)`);
 });
 
-module.exports = app;
+module.exports = { app, server, io };

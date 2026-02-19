@@ -1,21 +1,70 @@
 const { CitizenReport } = require('../models');
+const WardMaster = require('../models/WardMaster');
+const { rateLimitByUser } = require('../middleware/rateLimitByUser');
 const logger = require('../utils/logger');
 
+/**
+ * Resolve wardId from lat/lng via spatial join.
+ * Falls back to submitted wardId string if spatial lookup fails.
+ */
+async function resolveWardId(latitude, longitude, submittedWardId) {
+    try {
+        if (latitude && longitude) {
+            const ward = await WardMaster.findOne({
+                geoPolygon: {
+                    $geoIntersects: {
+                        $geometry: {
+                            type: 'Point',
+                            coordinates: [parseFloat(longitude), parseFloat(latitude)],
+                        },
+                    },
+                },
+            }).select('wardNumber').lean();
+
+            if (ward) return ward.wardNumber;
+
+            // Fallback: nearest centroid
+            const nearest = await WardMaster.findOne({
+                centroid: {
+                    $near: {
+                        $geometry: { type: 'Point', coordinates: [parseFloat(longitude), parseFloat(latitude)] },
+                        $maxDistance: 50000,
+                    },
+                },
+            }).select('wardNumber').lean();
+
+            if (nearest) return nearest.wardNumber;
+        }
+    } catch (e) {
+        logger.warn(`[citizenController] Spatial lookup failed: ${e.message}`);
+    }
+    // Final fallback: use submitted string
+    return submittedWardId ?? 'UNKNOWN';
+}
+
+// ─── Create Citizen Report (with spatial join) ───────────────────────────────
 exports.create = async (req, res, next) => {
     try {
-        const { wardId, latitude, longitude, syndromeType, description, severity } = req.body;
+        const { wardId: submittedWardId, latitude, longitude, syndromeType, description, severity } = req.body;
+
+        // Auto-resolve wardId from coordinates (spatial join)
+        const resolvedWardId = await resolveWardId(latitude, longitude, submittedWardId);
+
         const report = await CitizenReport.create({
             userId: req.user.id,
-            wardId, latitude, longitude,
+            wardId: resolvedWardId,
+            latitude, longitude,
             syndromeType, description, severity,
         });
-        logger.info(`Citizen report: Ward ${wardId} | ${syndromeType} | severity ${severity}`);
-        res.status(201).json(report);
+
+        logger.info(`Citizen report: Ward ${resolvedWardId} | ${syndromeType} | severity ${severity}`);
+        res.status(201).json({ ...report.toObject(), resolvedWardId });
     } catch (err) {
         next(err);
     }
 };
 
+// ─── List Reports ────────────────────────────────────────────────────────────
 exports.list = async (req, res, next) => {
     try {
         const { wardId, syndromeType, from, limit = 200 } = req.query;
@@ -34,6 +83,7 @@ exports.list = async (req, res, next) => {
     }
 };
 
+// ─── Cluster By Ward ─────────────────────────────────────────────────────────
 exports.clusterByWard = async (req, res, next) => {
     try {
         const { wardId } = req.params;

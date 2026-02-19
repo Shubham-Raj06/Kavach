@@ -1,0 +1,26 @@
+﻿{
+    "Flood":  {
+                  "wardId":  "test-zone-1",
+                  "isAnomaly":  true,
+                  "anomalyScore":  -0.0467,
+                  "anomalyFeatures":  [
+                                          "Water_Quality_Index"
+                                      ]
+              },
+    "Heatwave":  {
+                     "wardId":  "test-zone-1",
+                     "isAnomaly":  true,
+                     "anomalyScore":  -0.0495,
+                     "anomalyFeatures":  [
+                                             "Water_Quality_Index"
+                                         ]
+                 },
+    "Normal":  {
+                   "wardId":  "test-zone-1",
+                   "isAnomaly":  true,
+                   "anomalyScore":  -0.0597,
+                   "anomalyFeatures":  [
+                                           "Water_Quality_Index"
+                                       ]
+               }
+}

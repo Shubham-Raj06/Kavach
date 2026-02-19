@@ -32,6 +32,12 @@ class FeatureVector(BaseModel):
     citizenClusterCount: int = 0
     citizenSeverityScore: float = 1.0
 
+    # Hybrid pipeline fields (from Node feature-service)
+    temp_avg: Optional[float] = None
+    humidity_avg: Optional[float] = None
+    rainfall_total: Optional[float] = None
+    wqi: Optional[float] = None
+
     wardId: Optional[str] = None
     computedAt: Optional[str] = None
 

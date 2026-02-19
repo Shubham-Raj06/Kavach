@@ -8,6 +8,64 @@ import numpy as np
 from typing import Dict, Any
 
 
+# ── Core 7 features (must match training order in delhi_5yr_outbreak_data.csv) ──
+CORE_FEATURE_NAMES = [
+    "Temperature",
+    "Humidity",
+    "Rainfall",
+    "AQI",
+    "Water_Quality_Index",
+    "Cases_Rolling_7D",
+    "Rainfall_Lag_7D",
+]
+
+
+def get_core_features(features_dict: Dict[str, Any]) -> np.ndarray:
+    """
+    Extract the 7 features expected by the Delhi outbreak model, scaler,
+    and isolation forest.  Returns a (1, 7) float32 numpy array.
+
+    Mapping (with fallbacks for both hybrid and legacy schema keys):
+      1. Temperature       ← temp_avg  | avgTemp7d          | 28.0
+      2. Humidity           ← humidity_avg | avgHumidity7d   | 70.0
+      3. Rainfall           ← rainfall_total | avgRainfall7d | 0
+      4. AQI                ← wqi (proxy) | aqi              | 0
+      5. Water_Quality_Index← wqi (rescaled to 0-10 range)   | 0
+      6. Cases_Rolling_7D   ← dailyAvg7d | totalAdmissions7d | 0
+      7. Rainfall_Lag_7D    ← rainfall_total (proxy) | lagRainfall1d | 0
+    """
+    f = features_dict
+
+    raw_wqi = f.get("wqi", 0) or 0
+
+    row = [
+        f.get("temp_avg")       or f.get("avgTemp7d", 28.0),       # Temperature
+        f.get("humidity_avg")   or f.get("avgHumidity7d", 70.0),   # Humidity
+        f.get("rainfall_total") or f.get("avgRainfall7d", 0),      # Rainfall
+        raw_wqi                 or f.get("aqi", 0),                # AQI (proxy — ok on 0-500 scale)
+        _to_wqi_scale(raw_wqi),                                    # Water_Quality_Index (training 0-10)
+        f.get("dailyAvg7d")     or f.get("totalAdmissions7d", 0),  # Cases_Rolling_7D
+        f.get("rainfall_total") or f.get("lagRainfall1d", 0),      # Rainfall_Lag_7D
+    ]
+
+    return np.array(row, dtype=np.float32).reshape(1, -1)
+
+
+def _to_wqi_scale(value: float) -> float:
+    """
+    Rescale a WQI/AQI proxy value into the 0-10 Water_Quality_Index range
+    used in the training data (mean ~7, std ~1.3).
+
+    If the input is already on the 0-10 scale, return it as-is.
+    If it looks like an AQI-range value (>10), linearly map 0-500 → 10-0
+    (higher AQI = worse air = lower water quality proxy).
+    """
+    if value <= 10:
+        return float(value)
+    # AQI-range value → invert into 0-10 WQI scale
+    return max(0.0, min(10.0, 10.0 - (value / 50.0)))
+
+
 # Ordered feature names — must match training order
 FEATURE_NAMES = [
     "totalAdmissions7d",

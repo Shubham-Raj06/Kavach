@@ -153,8 +153,8 @@ def train():
     # ── Isolation Forest (anomaly detection) ──────────────────────────────────
     print("🔍 Training Isolation Forest...")
     iso = IsolationForest(
-        n_estimators=200,
-        contamination=0.1,
+        n_estimators=100,
+        contamination=0.05,
         random_state=42,
     )
     iso.fit(X_train_scaled)

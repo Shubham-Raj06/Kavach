@@ -60,9 +60,19 @@ initSocketManager(io);
 app.use(helmet());
 app.use(securityHeaders);
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production'
-    ? process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000']
-    : true,
+  origin: (origin, callback) => {
+    //Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+
+    // Check if origin is allowed or if it's a Vercel preview/production deployment
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.endsWith('.vercel.app') || origin.includes('localhost')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 

@@ -5,6 +5,7 @@ import ShapBarChart from '../components/ShapBarChart';
 import ForecastChart from '../components/ForecastChart';
 import RiskTimeline from '../components/RiskTimeline';
 import LiveAlertFeed from '../components/LiveAlertFeed';
+import GeoSpatialHeatmap from '../components/GeoSpatialHeatmap';
 
 // Mock Data for Demo
 const MOCK_WARD_DATA = {
@@ -141,7 +142,7 @@ const DashboardLayout = () => {
                         </div>
                     </div>
 
-                    {/* Center: Interactive Map (Placeholder for now) */}
+                    {/* Center: Interactive Map */}
                     <div style={{
                         background: '#1e293b',
                         borderRadius: '16px',
@@ -151,14 +152,14 @@ const DashboardLayout = () => {
                         display: 'flex',
                         flexDirection: 'column'
                     }}>
-                        {/* Map would be integrated here */}
                         <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 10 }}>
                             <select
                                 value={selectedWardId}
                                 onChange={(e) => setSelectedWardId(e.target.value)}
                                 style={{
                                     background: 'rgba(0,0,0,0.6)', color: 'white', border: '1px solid rgba(255,255,255,0.2)',
-                                    padding: '8px 12px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer'
+                                    padding: '8px 12px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer',
+                                    backdropFilter: 'blur(4px)'
                                 }}
                             >
                                 <option value="W-101">Ward 101 - South Delhi</option>
@@ -166,11 +167,17 @@ const DashboardLayout = () => {
                                 <option value="W-103">Ward 103 - Connaught Place</option>
                             </select>
                         </div>
-                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', background: `radial-gradient(circle at center, #1e293b 0%, #0f172a 100%)` }}>
-                            [ Geo-Spatial Risk Heatmap Integration ]
+
+                        {/* Map Integration */}
+                        <div style={{ width: '100%', height: '100%' }}>
+                            {/* 
+                   Dynamic import or direct usage depending on Next.js config. 
+                   Passing selectedWard as a single item list for now to highlight it on map. 
+                   Ideally fetch all wards risk data for heatmap.
+               */}
+                            <GeoSpatialHeatmap riskData={[wardData]} />
                         </div>
                     </div>
-
                     {/* Right: Live Alerts */}
                     <div style={{ height: '400px' }}>
                         <LiveAlertFeed maxAlerts={10} />

@@ -94,18 +94,58 @@ exports.list = async (req, res, next) => {
 /**
  * GET /api/risk/:wardId
  */
+/**
+ * GET /api/risk/:wardId
+ */
 exports.latestByWard = async (req, res, next) => {
     try {
         const { wardId } = req.params;
+        const { live } = req.query; // ?live=true so force ML inference
+
+        // 1. Try to get live prediction from ML Service if requested or if DB is stale (optional logic)
+        if (live === 'true') {
+            try {
+                const livePrediction = await mlService.getRiskPrediction(wardId);
+                if (livePrediction) {
+                    return res.json({
+                        ...livePrediction,
+                        source: 'live-ml-service',
+                        timestamp: new Date()
+                    });
+                }
+            } catch (mlError) {
+                logger.warn(`Failed to fetch live ML prediction for ${wardId}, falling back to DB: ${mlError.message}`);
+            }
+        }
+
+        // 2. Fallback to Database
         const prediction = await RiskPrediction.findOne({ wardId })
             .sort({ createdAt: -1 })
             .populate('wardId', 'name city latitude longitude');
 
-        if (!prediction) return res.status(404).json({ error: 'No prediction found for this ward' });
+        if (!prediction) {
+            // 3. If DB is empty, return a mock/default structure to prevent frontend crash
+            return res.json({
+                wardId,
+                riskScore: 0,
+                outbreakCategory: "Analyzing...",
+                confidence: 0,
+                shapReasons: [],
+                forecast: [],
+                source: "fallback-mock"
+            });
+        }
+
+        let shapReasons = [];
+        let outbreakReasons = [];
+        try { shapReasons = JSON.parse(prediction.shapReasons || '[]'); } catch (e) { }
+        try { outbreakReasons = JSON.parse(prediction.outbreakReasons || '[]'); } catch (e) { }
+
         res.json({
             ...prediction.toObject(),
-            shapReasons: JSON.parse(prediction.shapReasons || '[]'),
-            outbreakReasons: JSON.parse(prediction.outbreakReasons || '[]'),
+            shapReasons,
+            outbreakReasons,
+            source: 'database'
         });
     } catch (err) {
         next(err);

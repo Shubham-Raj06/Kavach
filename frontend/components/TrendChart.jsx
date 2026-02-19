@@ -56,7 +56,7 @@ export default function TrendChart({ wardId }) {
 
     if (loading) return (
         <div className="h-full flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-[#3b82f6] border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-[#84cc16] border-t-transparent rounded-full animate-spin" />
         </div>
     );
 
@@ -67,7 +67,7 @@ export default function TrendChart({ wardId }) {
         <div className="h-full flex flex-col gap-2">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <TrendingUp size={13} className="text-[#3b82f6]" />
+                    <TrendingUp size={13} className="text-[#84cc16]" />
                     <h3 className="text-xs font-semibold text-[#6b7280] uppercase tracking-wider">48-Hour Forecast</h3>
                 </div>
                 {maxRisk > alertLine && (
@@ -82,8 +82,8 @@ export default function TrendChart({ wardId }) {
                     <AreaChart data={data} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
                         <defs>
                             <linearGradient id="riskGrad" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                <stop offset="5%" stopColor="#84cc16" stopOpacity={0.3} />
+                                <stop offset="95%" stopColor="#84cc16" stopOpacity={0} />
                             </linearGradient>
                             <linearGradient id="admGrad" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#f97316" stopOpacity={0.2} />
@@ -109,7 +109,7 @@ export default function TrendChart({ wardId }) {
                             strokeWidth={2}
                             fill="url(#riskGrad)"
                             dot={false}
-                            activeDot={{ r: 4, fill: '#3b82f6' }}
+                            activeDot={{ r: 4, fill: '#84cc16' }}
                         />
                         <Area
                             type="monotone"
@@ -127,7 +127,7 @@ export default function TrendChart({ wardId }) {
 
             <div className="flex gap-4 justify-center">
                 <div className="flex items-center gap-1.5">
-                    <div className="w-3 h-0.5 bg-[#3b82f6] rounded" />
+                    <div className="w-3 h-0.5 bg-[#84cc16] rounded" />
                     <span className="text-[10px] text-[#6b7280]">Risk Score %</span>
                 </div>
                 <div className="flex items-center gap-1.5">

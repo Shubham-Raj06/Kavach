@@ -72,36 +72,36 @@ export default function CommunityDashboard() {
 
             <div style={{
                 minHeight: '100vh',
-                background: `radial-gradient(ellipse 120% 80% at 50% -10%, ${col.glow.replace('0.5', '0.08')} 0%, transparent 60%), #0B1220`,
-                color: '#f1f5f9',
-                fontFamily: "'Inter', sans-serif",
+                background: `radial-gradient(ellipse 120% 80% at 50% -10%, ${col.glow.replace('0.5', '0.07')} 0%, transparent 60%), #080f0a`,
+                color: '#ecfdf5',
+                fontFamily: "'Ubuntu', system-ui, sans-serif",
                 display: 'flex', flexDirection: 'column',
             }}>
                 {/* NAVBAR */}
                 <nav style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     padding: '0 24px', height: 52,
-                    background: 'rgba(11,18,32,0.9)',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    backdropFilter: 'blur(12px)',
+                    background: 'rgba(8,15,10,0.85)',
+                    borderBottom: '1px solid rgba(132,204,22,0.12)',
+                    backdropFilter: 'blur(18px)',
                     position: 'sticky', top: 0, zIndex: 50,
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.3px' }}>Kavach</span>
+                        <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.3px' }}>Kavach</span>
                         <span style={{
-                            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
-                            background: 'rgba(245,158,11,0.2)', color: '#fbbf24',
-                            border: '1px solid rgba(245,158,11,0.4)',
+                            fontSize: 16, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                            background: 'rgba(132,204,22,0.15)', color: '#84cc16',
+                            border: '1px solid rgba(132,204,22,0.35)',
                         }}>COMMUNITY</span>
                     </div>
 
                     <div style={{ display: 'flex', gap: 4 }}>
                         {NAV_LINKS.map(item => (
                             <Link key={item.href} href={item.href} style={{
-                                padding: '5px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
-                                background: item.active ? 'rgba(245,158,11,0.15)' : 'transparent',
-                                border: item.active ? '1px solid rgba(245,158,11,0.3)' : '1px solid transparent',
-                                color: item.active ? '#fbbf24' : 'rgba(255,255,255,0.5)',
+                                padding: '5px 14px', borderRadius: 8, fontSize: 16, fontWeight: 500,
+                                background: item.active ? 'rgba(132,204,22,0.12)' : 'transparent',
+                                border: item.active ? '1px solid rgba(132,204,22,0.28)' : '1px solid transparent',
+                                color: item.active ? '#84cc16' : 'rgba(172,220,180,0.5)',
                                 textDecoration: 'none',
                             }}>{item.label}</Link>
                         ))}
@@ -111,18 +111,18 @@ export default function CommunityDashboard() {
                         <LiveClock />
                         <div style={{
                             width: 30, height: 30, borderRadius: '50%',
-                            background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
+                            background: 'linear-gradient(135deg, #84cc16, #4ade80)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 12, fontWeight: 700,
+                            fontSize: 16, fontWeight: 800, color: '#080f0a',
                         }}>C</div>
                     </div>
                 </nav>
 
                 {/* MAIN CONTENT */}
-                <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr 280px', gap: 12, padding: '16px 20px', flex: 1 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr 300px', gap: 20, padding: '20px 24px', flex: 1 }}>
 
                     {/* LEFT: Zone Risk Card + Nearest Hospital */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
                         {/* Big Risk Card */}
                         <div style={{
                             padding: 20,
@@ -131,16 +131,16 @@ export default function CommunityDashboard() {
                             borderRadius: 20,
                             boxShadow: `0 0 40px ${col.glow}`,
                         }}>
-                            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8 }}>
-                                Your Zone · {ward.name}
+                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', marginBottom: 10 }}>
+                                Your zone · {ward.name}
                             </div>
                             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginBottom: 16 }}>
-                                <div style={{ fontSize: 72, fontWeight: 900, color: col.text, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                                <div style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 72, fontWeight: 800, color: col.text, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                                     {ward.riskScore}
                                 </div>
                                 <div style={{ paddingBottom: 8 }}>
-                                    <div style={{ fontSize: 14, fontWeight: 700, color: col.text }}>{level} RISK</div>
-                                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>Outbreak probability</div>
+                                    <div style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 16, fontWeight: 700, color: col.text }}>{level} risk</div>
+                                    <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', marginTop: 2 }}>Outbreak probability</div>
                                 </div>
                             </div>
 
@@ -163,16 +163,16 @@ export default function CommunityDashboard() {
                             </div>
 
                             {/* Stats */}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                                 {[
                                     { label: 'Category', value: `${CATEGORY_ICON[ward.category]} ${ward.category.replace('_', ' ')}` },
                                     { label: 'Population', value: `${(ward.population / 1000).toFixed(0)}K` },
                                     { label: 'Reports Filed', value: ward.citizenReports },
                                     { label: 'Anomaly', value: ward.isAnomaly ? '⚡ Detected' : '✅ None' },
                                 ].map(m => (
-                                    <div key={m.label} style={{ background: 'rgba(0,0,0,0.25)', borderRadius: 10, padding: '8px 10px' }}>
-                                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{m.label}</div>
-                                        <div style={{ fontSize: 12, fontWeight: 600, marginTop: 3 }}>{m.value}</div>
+                                    <div key={m.label} style={{ background: 'rgba(0,0,0,0.25)', borderRadius: 10, padding: '10px 12px' }}>
+                                        <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>{m.label}</div>
+                                        <div style={{ fontSize: 16, fontWeight: 600, marginTop: 2 }}>{m.value}</div>
                                     </div>
                                 ))}
                             </div>
@@ -185,18 +185,18 @@ export default function CommunityDashboard() {
                             border: `1px solid ${nearestHospital.surgeAlert ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}`,
                             borderRadius: 14,
                         }}>
-                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
                                 Nearest Hospital
                             </div>
-                            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>{nearestHospital.name}</div>
+                            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>{nearestHospital.name}</div>
                             <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
                                 {[
                                     { label: 'Beds', value: `${Math.round((nearestHospital.occupiedBeds / nearestHospital.totalBeds) * 100)}%`, color: '#f97316' },
                                     { label: 'ICU', value: `${Math.round((nearestHospital.icuOccupied / nearestHospital.icuTotal) * 100)}%`, color: '#ef4444' },
-                                    { label: 'Today', value: `+${nearestHospital.admissionsToday}`, color: '#3b82f6' },
+                                    { label: 'Today', value: `+${nearestHospital.admissionsToday}`, color: '#84cc16' },
                                 ].map(m => (
                                     <div key={m.label} style={{ flex: 1, textAlign: 'center', background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '6px 4px' }}>
-                                        <div style={{ fontSize: 14, fontWeight: 800, color: m.color }}>{m.value}</div>
+                                        <div style={{ fontSize: 16, fontWeight: 800, color: m.color }}>{m.value}</div>
                                         <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)' }}>{m.label}</div>
                                     </div>
                                 ))}
@@ -208,7 +208,7 @@ export default function CommunityDashboard() {
                                     background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
                                 }}>
                                     <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', animation: 'pulse 1.5s infinite' }} />
-                                    <span style={{ fontSize: 10, color: '#ef4444', fontWeight: 600 }}>Hospital under surge — expect delays</span>
+                                    <span style={{ fontSize: 16, color: '#ef4444', fontWeight: 600 }}>Hospital under surge — expect delays</span>
                                 </div>
                             )}
                         </div>
@@ -219,7 +219,7 @@ export default function CommunityDashboard() {
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: 14, padding: 14,
                         }}>
-                            <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+                            <div style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
                                 Why High Risk?
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -230,7 +230,7 @@ export default function CommunityDashboard() {
                                         background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',
                                     }}>
                                         <span style={{ fontSize: 16, flexShrink: 0 }}>{r.icon}</span>
-                                        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{r.text}</span>
+                                        <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', lineHeight: 1.4 }}>{r.text}</span>
                                     </div>
                                 ))}
                             </div>
@@ -245,14 +245,14 @@ export default function CommunityDashboard() {
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: 16, padding: 16,
                         }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Symptom Trend — Last 7 Days</div>
-                            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Reported cases by symptom category in {ward.name}</div>
+                            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>Symptom Trend — Last 7 Days</div>
+                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Reported cases by symptom category in {ward.name}</div>
                             <div style={{ height: 200 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={symptomData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                         <defs>
                                             {[
-                                                { key: 'diarrhea', color: '#3b82f6' },
+                                                { key: 'diarrhea', color: '#4ade80' },
                                                 { key: 'fever', color: '#ef4444' },
                                                 { key: 'vomiting', color: '#f59e0b' },
                                                 { key: 'respiratory', color: '#10b981' },
@@ -264,10 +264,10 @@ export default function CommunityDashboard() {
                                             ))}
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                                        <XAxis dataKey="day" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                                        <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                        <XAxis dataKey="day" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 16 }} axisLine={false} tickLine={false} />
+                                        <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 16 }} axisLine={false} tickLine={false} />
                                         <Tooltip content={<CustomTooltip />} />
-                                        <Area type="monotone" dataKey="diarrhea" name="Diarrhea" stroke="#3b82f6" strokeWidth={2} fill="url(#grad-diarrhea)" dot={false} />
+                                        <Area type="monotone" dataKey="diarrhea" name="Diarrhea" stroke="#4ade80" strokeWidth={2} fill="url(#grad-diarrhea)" dot={false} />
                                         <Area type="monotone" dataKey="fever" name="Fever" stroke="#ef4444" strokeWidth={2} fill="url(#grad-fever)" dot={false} />
                                         <Area type="monotone" dataKey="vomiting" name="Vomiting" stroke="#f59e0b" strokeWidth={1.5} fill="url(#grad-vomiting)" dot={false} />
                                         <Area type="monotone" dataKey="respiratory" name="Respiratory" stroke="#10b981" strokeWidth={1.5} fill="url(#grad-respiratory)" dot={false} />
@@ -277,14 +277,14 @@ export default function CommunityDashboard() {
                             {/* Legend */}
                             <div style={{ display: 'flex', gap: 16, marginTop: 8, justifyContent: 'center' }}>
                                 {[
-                                    { label: 'Diarrhea', color: '#3b82f6' },
+                                    { label: 'Diarrhea', color: '#4ade80' },
                                     { label: 'Fever', color: '#ef4444' },
                                     { label: 'Vomiting', color: '#f59e0b' },
                                     { label: 'Respiratory', color: '#10b981' },
                                 ].map(l => (
                                     <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                                         <div style={{ width: 8, height: 8, borderRadius: '50%', background: l.color }} />
-                                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>{l.label}</span>
+                                        <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }}>{l.label}</span>
                                     </div>
                                 ))}
                             </div>
@@ -297,7 +297,7 @@ export default function CommunityDashboard() {
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: 16, padding: 16,
                         }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 12 }}>Health Advisories</div>
+                            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Health Advisories</div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                                 {ADVISORIES.map(adv => {
                                     const c = ADV_COLORS[adv.severity];
@@ -309,16 +309,16 @@ export default function CommunityDashboard() {
                                             borderRadius: 12,
                                         }}>
                                             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-                                                <span style={{ fontSize: 22, flexShrink: 0 }}>{adv.icon}</span>
+                                                <span style={{ fontSize: 26, flexShrink: 0 }}>{adv.icon}</span>
                                                 <div style={{ flex: 1 }}>
                                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                                                        <div style={{ fontSize: 13, fontWeight: 700 }}>{adv.title}</div>
+                                                        <div style={{ fontSize: 16, fontWeight: 700 }}>{adv.title}</div>
                                                         <span style={{ fontSize: 9, color: c.text, fontWeight: 700, textTransform: 'uppercase' }}>{adv.severity}</span>
                                                     </div>
-                                                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{adv.body}</div>
+                                                    <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>{adv.body}</div>
                                                     <div style={{ display: 'flex', gap: 12, marginTop: 6 }}>
-                                                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Issued: {adv.issued}</span>
-                                                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>Expires: {adv.expires}</span>
+                                                        <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)' }}>Issued: {adv.issued}</span>
+                                                        <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)' }}>Expires: {adv.expires}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -337,8 +337,8 @@ export default function CommunityDashboard() {
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: 14, padding: 14,
                         }}>
-                            <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>48h Risk Forecast</div>
-                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 10 }}>Predicted outbreak probability</div>
+                            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>48h Risk Forecast</div>
+                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)', marginBottom: 10 }}>Predicted outbreak probability</div>
                             <div style={{ height: 140 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={ward.forecastTrend.map((v, i) => ({ h: `+${i * 4}h`, risk: v }))}
@@ -365,7 +365,7 @@ export default function CommunityDashboard() {
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: 14, padding: 14,
                         }}>
-                            <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10 }}>🛡️ What To Do Now</div>
+                            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>🛡️ What To Do Now</div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                                 {[
                                     { icon: '💧', text: 'Boil all drinking water for 1 min before use', urgent: true },
@@ -380,8 +380,8 @@ export default function CommunityDashboard() {
                                         background: item.urgent ? 'rgba(239,68,68,0.08)' : 'rgba(255,255,255,0.03)',
                                         border: item.urgent ? '1px solid rgba(239,68,68,0.2)' : '1px solid rgba(255,255,255,0.05)',
                                     }}>
-                                        <span style={{ fontSize: 14, flexShrink: 0 }}>{item.icon}</span>
-                                        <span style={{ fontSize: 11, color: item.urgent ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.65)', lineHeight: 1.4 }}>{item.text}</span>
+                                        <span style={{ fontSize: 16, flexShrink: 0 }}>{item.icon}</span>
+                                        <span style={{ fontSize: 16, color: item.urgent ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.65)', lineHeight: 1.4 }}>{item.text}</span>
                                     </div>
                                 ))}
                             </div>
@@ -393,14 +393,14 @@ export default function CommunityDashboard() {
                             border: '1px solid rgba(239,68,68,0.2)',
                             borderRadius: 14, padding: 14,
                         }}>
-                            <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10, color: '#ef4444' }}>🚨 Emergency Contacts</div>
+                            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 10, color: '#ef4444' }}>🚨 Emergency Contacts</div>
                             {[
                                 { label: 'Health Helpline', number: '104' },
                                 { label: 'Ambulance', number: '108' },
                                 { label: 'BMC Control Room', number: '1916' },
                             ].map(c => (
                                 <div key={c.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{c.label}</span>
+                                    <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)' }}>{c.label}</span>
                                     <span style={{ fontSize: 16, fontWeight: 800, color: '#ef4444', fontVariantNumeric: 'tabular-nums' }}>{c.number}</span>
                                 </div>
                             ))}
@@ -414,14 +414,14 @@ export default function CommunityDashboard() {
                     borderTop: '1px solid rgba(255,255,255,0.04)',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 }}>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
+                    <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }}>
                         Kavach Community · {ward.name}, {ward.city} · Citizen Health Portal
                     </span>
                     <div style={{ display: 'flex', gap: 16 }}>
                         {[{ label: 'Data Feed', ok: true }, { label: 'Advisories', ok: true }].map(s => (
                             <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,0.7)' }} />
-                                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{s.label}</span>
+                                <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }}>{s.label}</span>
                             </div>
                         ))}
                     </div>
@@ -435,7 +435,7 @@ export default function CommunityDashboard() {
                 }
                 ::-webkit-scrollbar { width: 4px; }
                 ::-webkit-scrollbar-track { background: transparent; }
-                ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+                ::-webkit-scrollbar-thumb { background: rgba(132,204,22,0.15); border-radius: 2px; }
             `}</style>
         </>
     );

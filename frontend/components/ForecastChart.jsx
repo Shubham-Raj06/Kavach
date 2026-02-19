@@ -39,8 +39,8 @@ export default function ForecastChart({ ward }) {
                             <stop offset="95%" stopColor="#ef4444" stopOpacity={0.02} />
                         </linearGradient>
                         <linearGradient id="admGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.35} />
-                            <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.02} />
+                            <stop offset="5%" stopColor="#84cc16" stopOpacity={0.35} />
+                            <stop offset="95%" stopColor="#84cc16" stopOpacity={0.02} />
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
@@ -53,8 +53,8 @@ export default function ForecastChart({ ward }) {
                         stroke="#ef4444" strokeWidth={2} fill="url(#riskGrad)"
                         dot={false} activeDot={{ r: 4, fill: '#ef4444' }} />
                     <Area type="monotone" dataKey="admissions" name="Admissions"
-                        stroke="#3b82f6" strokeWidth={2} fill="url(#admGrad)"
-                        dot={false} activeDot={{ r: 4, fill: '#3b82f6' }} />
+                        stroke="#84cc16" strokeWidth={2} fill="url(#admGrad)"
+                        dot={false} activeDot={{ r: 4, fill: '#84cc16' }} />
                 </AreaChart>
             </ResponsiveContainer>
         </div>

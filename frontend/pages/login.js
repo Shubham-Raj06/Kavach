@@ -2,20 +2,12 @@ import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Activity, Eye, EyeOff } from 'lucide-react';
+import { Shield, Eye, EyeOff, Zap } from 'lucide-react';
 import { login } from '../lib/api';
 
-// Role → route mapping (must match RouteGuard's ROUTE_ROLES, uppercase DB enum values)
 const ROLE_ROUTES = {
-    GOV: '/gov',
-    HOSPITAL: '/hospital',
-    CITIZEN: '/community',
-    SUPER_ADMIN: '/admin',
-    // lowercase fallbacks for legacy demo-mode routing
-    gov: '/gov',
-    hospital: '/hospital',
-    citizen: '/community',
-    admin: '/admin',
+    GOV: '/gov', HOSPITAL: '/hospital', CITIZEN: '/community', SUPER_ADMIN: '/admin',
+    gov: '/gov', hospital: '/hospital', citizen: '/community', admin: '/admin',
 };
 
 const DEMO_CREDS = {
@@ -24,6 +16,36 @@ const DEMO_CREDS = {
     citizen: { email: 'citizen@kavach.health', password: 'Citizen@123', role: 'citizen' },
     admin: { email: 'admin@kavach.health', password: 'Admin@123', role: 'admin' },
 };
+
+const QUICK_BUTTONS = [
+    { role: 'gov', label: '🗺️ GOV', accent: 'rgba(132,204,22,0.15)', border: 'rgba(132,204,22,0.30)', text: '#84cc16' },
+    { role: 'hospital', label: '🏥 HOSPITAL', accent: 'rgba(74,222,128,0.12)', border: 'rgba(74,222,128,0.25)', text: '#4ade80' },
+    { role: 'citizen', label: '👥 CITIZEN', accent: 'rgba(234,179,8,0.12)', border: 'rgba(234,179,8,0.25)', text: '#fbbf24' },
+    { role: 'admin', label: '⚙️ ADMIN', accent: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.25)', text: '#f87171' },
+];
+
+// Decorative animated hexagon vector (matches reference image style)
+function HexDecor({ size = 60, x, y, opacity = 0.2, rotate = 0, delay = 0 }) {
+    return (
+        <div style={{
+            position: 'absolute', left: x, top: y,
+            width: size, height: size,
+            opacity,
+            animation: `float-orb 6s ease-in-out ${delay}s infinite`,
+            zIndex: 0,
+        }}>
+            <svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg"
+                style={{ transform: `rotate(${rotate}deg)`, width: '100%', height: '100%' }}>
+                <polygon points="30,2 56,17 56,43 30,58 4,43 4,17"
+                    stroke="rgba(132,204,22,0.6)" strokeWidth="1.5"
+                    fill="rgba(132,204,22,0.06)" />
+                <polygon points="30,10 48,20 48,40 30,50 12,40 12,20"
+                    stroke="rgba(74,222,128,0.3)" strokeWidth="1"
+                    fill="rgba(74,222,128,0.03)" />
+            </svg>
+        </div>
+    );
+}
 
 export default function LoginPage() {
     const router = useRouter();
@@ -47,10 +69,8 @@ export default function LoginPage() {
             const returnTo = new URLSearchParams(window.location.search).get('returnTo');
             router.push(returnTo || ROLE_ROUTES[role] || '/dashboard');
         } catch {
-            // Demo mode: route by email prefix when backend is offline / DB not connected
             const matchedRole = Object.keys(DEMO_CREDS).find(r => DEMO_CREDS[r].email === email);
             if (matchedRole) {
-                // In demo mode, skip RouteGuard by not using stored tokens
                 router.push(ROLE_ROUTES[matchedRole]);
             } else {
                 setError('Invalid credentials. Use a demo button below to log in.');
@@ -60,143 +80,271 @@ export default function LoginPage() {
         }
     };
 
-    const fillDemo = (role) => {
-        setEmail(DEMO_CREDS[role].email);
-        setPassword(DEMO_CREDS[role].password);
-        setError('');
-    };
-
     const quickLogin = (role) => {
-        // Demo mode: store role in sessionStorage so RouteGuard allows navigation
-        const demoRoleMap = {
-            gov: 'GOV',
-            hospital: 'HOSPITAL',
-            citizen: 'CITIZEN',
-            admin: 'SUPER_ADMIN',
-        };
+        const demoRoleMap = { gov: 'GOV', hospital: 'HOSPITAL', citizen: 'CITIZEN', admin: 'SUPER_ADMIN' };
         if (typeof window !== 'undefined') {
             sessionStorage.setItem('kavach_demo_role', demoRoleMap[role] || 'CITIZEN');
         }
         router.push(ROLE_ROUTES[role]);
     };
 
+    const fillDemo = (role) => {
+        setEmail(DEMO_CREDS[role].email);
+        setPassword(DEMO_CREDS[role].password);
+        setError('');
+    };
+
     return (
         <>
             <Head>
-                <title>Kavach — Login</title>
+                <title>Kavach — Sign In</title>
                 <meta name="description" content="Kavach AI Disease Outbreak Monitor — Sign in" />
             </Head>
 
-            <div className="min-h-screen bg-[#0B1220] flex items-center justify-center p-4">
-                {/* Background gradient orbs */}
-                <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-violet-600/8 rounded-full blur-3xl" />
-                    <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-600/8 rounded-full blur-3xl" />
-                    <div className="absolute top-3/4 left-1/2 w-64 h-64 bg-red-600/5 rounded-full blur-3xl" />
+            <div style={{
+                minHeight: '100vh',
+                background: '#080f0a',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 20,
+                position: 'relative',
+                overflow: 'hidden',
+                fontFamily: "'DM Sans', 'Inter', sans-serif",
+            }}>
+                {/* Ambient light blobs */}
+                <div style={{
+                    position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden', zIndex: 0,
+                }}>
+                    <div style={{
+                        position: 'absolute', top: '-15%', left: '30%',
+                        width: 500, height: 500,
+                        background: 'radial-gradient(circle, rgba(132,204,22,0.10) 0%, transparent 70%)',
+                        borderRadius: '50%',
+                    }} />
+                    <div style={{
+                        position: 'absolute', bottom: '-10%', right: '20%',
+                        width: 400, height: 400,
+                        background: 'radial-gradient(circle, rgba(74,222,128,0.07) 0%, transparent 70%)',
+                        borderRadius: '50%',
+                    }} />
+                    <div style={{
+                        position: 'absolute', top: '40%', left: '-5%',
+                        width: 300, height: 300,
+                        background: 'radial-gradient(circle, rgba(132,204,22,0.05) 0%, transparent 70%)',
+                        borderRadius: '50%',
+                    }} />
                 </div>
 
-                <div className="w-full max-w-md relative">
-                    {/* Logo */}
-                    <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-600 to-blue-600 shadow-lg shadow-violet-500/30 mb-4">
-                            <Activity size={28} className="text-white" />
+                {/* Floating hex decorations */}
+                <HexDecor size={70} x="5%" y="8%" opacity={0.25} rotate={20} delay={0} />
+                <HexDecor size={45} x="88%" y="5%" opacity={0.18} rotate={-15} delay={1.5} />
+                <HexDecor size={55} x="80%" y="70%" opacity={0.20} rotate={30} delay={2.8} />
+                <HexDecor size={35} x="3%" y="75%" opacity={0.15} rotate={-10} delay={0.8} />
+                <HexDecor size={28} x="50%" y="92%" opacity={0.12} rotate={45} delay={3.5} />
+
+                {/* Card */}
+                <div style={{
+                    width: '100%', maxWidth: 420,
+                    position: 'relative', zIndex: 1,
+                }}>
+                    {/* Logo header */}
+                    <div style={{ textAlign: 'center', marginBottom: 32 }}>
+                        <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center', justifyContent: 'center',
+                            width: 58, height: 58, borderRadius: 16,
+                            background: 'linear-gradient(135deg, #84cc16 0%, #4ade80 100%)',
+                            boxShadow: '0 0 32px rgba(132,204,22,0.55), 0 0 64px rgba(132,204,22,0.18)',
+                            marginBottom: 16,
+                        }}>
+                            <Shield size={28} color="#080f0a" strokeWidth={2.5} />
                         </div>
-                        <h1 className="text-2xl font-bold text-white">Kavach</h1>
-                        <p className="text-[#6b7280] text-sm mt-1">AI Disease Outbreak Monitor</p>
+                        <h1 style={{
+                            fontFamily: "'Ubuntu', sans-serif",
+                            fontSize: 40, fontWeight: 700,
+                            color: '#ecfdf5', margin: 0,
+                            letterSpacing: '-0.02em',
+                            lineHeight: 1.1,
+                        }}>Kavach</h1>
+                        <p style={{ fontSize: 15, color: '#6b8f72', margin: '6px 0 0', lineHeight: 1.5 }}>
+                            AI Disease Outbreak Monitor
+                        </p>
                     </div>
 
-                    {/* Card */}
-                    <div className="bg-[#121A2B] border border-white/[0.08] rounded-2xl p-8 shadow-2xl">
-                        <h2 className="text-lg font-semibold text-white mb-6">Sign in to Dashboard</h2>
+                    {/* Glass card */}
+                    <div style={{
+                        background: 'rgba(13,24,16,0.85)',
+                        backdropFilter: 'blur(20px)',
+                        WebkitBackdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(132,204,22,0.15)',
+                        borderRadius: 20,
+                        padding: '28px 28px',
+                        boxShadow: '0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(132,204,22,0.05)',
+                    }}>
+                        <h2 style={{
+                            fontFamily: "'Ubuntu', sans-serif",
+                            fontSize: 22, fontWeight: 700,
+                            color: '#ecfdf5', margin: '0 0 22px',
+                            letterSpacing: '-0.01em',
+                        }}>Sign in</h2>
 
+                        {/* Error */}
                         {error && (
-                            <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm px-4 py-3 rounded-xl mb-4">
+                            <div style={{
+                                background: 'rgba(239,68,68,0.10)',
+                                border: '1px solid rgba(239,68,68,0.30)',
+                                color: '#f87171', fontSize: 12,
+                                padding: '10px 14px', borderRadius: 10, marginBottom: 16,
+                            }}>
                                 {error}
                             </div>
                         )}
 
-                        <form onSubmit={handleLogin} className="space-y-4">
+                        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                            {/* Email */}
                             <div>
-                                <label className="block text-xs font-medium text-[#9ca3af] mb-1.5">Email</label>
+                                <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#a3c4a8', marginBottom: 7 }}>
+                                    Email address
+                                </label>
                                 <input
                                     type="email"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    onChange={e => setEmail(e.target.value)}
                                     placeholder="you@kavach.health"
                                     required
-                                    className="w-full bg-[#0B1220] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-[#4b5563] focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors"
+                                    style={{
+                                        width: '100%',
+                                        background: 'rgba(8,15,10,0.8)',
+                                        border: '1px solid rgba(26,46,29,0.9)',
+                                        borderRadius: 10, padding: '12px 14px',
+                                        fontSize: 15, color: '#ecfdf5',
+                                        outline: 'none',
+                                        transition: 'border-color 0.15s',
+                                        fontFamily: "'Ubuntu', sans-serif",
+                                        boxSizing: 'border-box',
+                                    }}
+                                    onFocus={e => e.target.style.borderColor = 'rgba(132,204,22,0.50)'}
+                                    onBlur={e => e.target.style.borderColor = 'rgba(26,46,29,0.9)'}
                                 />
                             </div>
 
+                            {/* Password */}
                             <div>
-                                <label className="block text-xs font-medium text-[#9ca3af] mb-1.5">Password</label>
-                                <div className="relative">
+                                <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#a3c4a8', marginBottom: 7 }}>
+                                    Password
+                                </label>
+                                <div style={{ position: 'relative' }}>
                                     <input
                                         type={showPw ? 'text' : 'password'}
                                         value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        onChange={e => setPassword(e.target.value)}
                                         placeholder="••••••••"
                                         required
-                                        className="w-full bg-[#0B1220] border border-white/[0.08] rounded-xl px-4 py-3 pr-10 text-sm text-white placeholder-[#4b5563] focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors"
+                                        style={{
+                                            width: '100%',
+                                            background: 'rgba(8,15,10,0.8)',
+                                            border: '1px solid rgba(26,46,29,0.9)',
+                                            borderRadius: 10, padding: '12px 44px 12px 14px',
+                                            fontSize: 15, color: '#ecfdf5',
+                                            outline: 'none',
+                                            transition: 'border-color 0.15s',
+                                            fontFamily: "'Ubuntu', sans-serif",
+                                            boxSizing: 'border-box',
+                                        }}
+                                        onFocus={e => e.target.style.borderColor = 'rgba(132,204,22,0.50)'}
+                                        onBlur={e => e.target.style.borderColor = 'rgba(26,46,29,0.9)'}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPw(!showPw)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6b7280] hover:text-[#9ca3af]"
+                                        style={{
+                                            position: 'absolute', right: 12, top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            background: 'none', border: 'none',
+                                            color: '#6b8f72', cursor: 'pointer',
+                                            lineHeight: 0,
+                                        }}
                                     >
-                                        {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
                                     </button>
                                 </div>
                             </div>
 
+                            {/* Submit */}
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-500 hover:to-blue-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-violet-500/20 mt-2"
+                                style={{
+                                    width: '100%',
+                                    background: loading ? 'rgba(132,204,22,0.4)' : 'linear-gradient(135deg, #84cc16 0%, #65a30d 100%)',
+                                    color: '#080f0a',
+                                    fontFamily: "'Ubuntu', sans-serif",
+                                    fontWeight: 700, fontSize: 15,
+                                    padding: '14px 0',
+                                    borderRadius: 10, border: 'none',
+                                    cursor: loading ? 'not-allowed' : 'pointer',
+                                    boxShadow: '0 0 20px rgba(132,204,22,0.35)',
+                                    transition: 'all 0.2s',
+                                    letterSpacing: '0.01em',
+                                    marginTop: 6,
+                                }}
                             >
                                 {loading ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Signing in...
+                                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                                        <span style={{ width: 14, height: 14, border: '2px solid rgba(8,15,10,0.3)', borderTopColor: '#080f0a', borderRadius: '50%', display: 'inline-block', animation: 'spin-slow 0.8s linear infinite' }} />
+                                        Signing in…
                                     </span>
                                 ) : 'Sign In'}
                             </button>
                         </form>
 
-                        {/* Demo credentials */}
-                        <div className="mt-6 pt-6 border-t border-white/[0.06]">
-                            <p className="text-xs text-[#6b7280] text-center mb-4 uppercase tracking-widest font-bold">Demo Access Credentials</p>
+                        {/* Demo creds section */}
+                        <div style={{ marginTop: 22, paddingTop: 18, borderTop: '1px solid rgba(26,46,29,0.8)' }}>
+                            <p style={{ fontSize: 12, color: '#6b8f72', textAlign: 'center', marginBottom: 10, fontWeight: 500 }}>
+                                Try a demo account
+                            </p>
 
-                            <div className="bg-[#0B1220] border border-white/[0.05] rounded-xl p-3 mb-6 space-y-2">
+                            {/* Credential table */}
+                            <div style={{
+                                background: 'rgba(8,15,10,0.6)',
+                                border: '1px solid rgba(26,46,29,0.7)',
+                                borderRadius: 10, padding: '10px 12px',
+                                marginBottom: 14, display: 'flex', flexDirection: 'column', gap: 7,
+                            }}>
                                 {[
                                     { role: 'Admin', email: 'admin@kavach.health', pass: 'Admin@123' },
                                     { role: 'Gov', email: 'gov@kavach.health', pass: 'Gov@123' },
                                     { role: 'Hospital', email: 'hospital@kavach.health', pass: 'Hospital@123' },
                                     { role: 'Citizen', email: 'citizen@kavach.health', pass: 'Citizen@123' },
-                                ].map((cred) => (
-                                    <div key={cred.role} className="flex justify-between items-center text-[10px]">
-                                        <span className="text-[#9ca3af] font-medium">{cred.role}:</span>
-                                        <div className="text-right">
-                                            <code className="text-violet-400">{cred.email}</code>
-                                            <span className="text-[#4b5563] mx-1">/</span>
-                                            <code className="text-blue-400">{cred.pass}</code>
+                                ].map(cred => (
+                                    <div key={cred.role} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 10 }}>
+                                        <span style={{ color: '#a3c4a8', fontWeight: 600 }}>{cred.role}</span>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <code style={{ color: '#84cc16' }}>{cred.email}</code>
+                                            <span style={{ color: '#3d5a42', margin: '0 4px' }}>/</span>
+                                            <code style={{ color: '#4ade80' }}>{cred.pass}</code>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <p className="text-xs text-[#6b7280] text-center mb-3">Or use Quick Login buttons</p>
-                            <div className="flex gap-2">
-                                {[
-                                    { role: 'gov', label: '🗺️ GOV', color: 'text-violet-400 border-violet-500/30 bg-violet-500/10', hoverColor: 'hover:bg-violet-500/20' },
-                                    { role: 'hospital', label: '🏥 HOSPITAL', color: 'text-green-400 border-green-500/30 bg-green-500/10', hoverColor: 'hover:bg-green-500/20' },
-                                    { role: 'citizen', label: '👥 CITIZEN', color: 'text-amber-400 border-amber-500/30 bg-amber-500/10', hoverColor: 'hover:bg-amber-500/20' },
-                                    { role: 'admin', label: '⚙️ ADMIN', color: 'text-red-400 border-red-500/30 bg-red-500/10', hoverColor: 'hover:bg-red-500/20' },
-                                ].map(({ role, label, color, hoverColor }) => (
+                            {/* Quick-login buttons */}
+                            <div style={{ display: 'flex', gap: 6 }}>
+                                {QUICK_BUTTONS.map(({ role, label, accent, border, text }) => (
                                     <button
                                         key={role}
                                         onClick={() => quickLogin(role)}
-                                        className={`flex-1 text-[10px] font-bold border rounded-lg py-2 transition-all ${color} ${hoverColor}`}
+                                        style={{
+                                            flex: 1, fontSize: 9, fontWeight: 800,
+                                            paddingTop: 8, paddingBottom: 8,
+                                            borderRadius: 8, border: `1px solid ${border}`,
+                                            background: accent, color: text,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.15s',
+                                            fontFamily: "'DM Sans', sans-serif",
+                                            letterSpacing: '0.04em',
+                                        }}
                                     >
                                         {label}
                                     </button>
@@ -205,20 +353,32 @@ export default function LoginPage() {
                         </div>
 
                         {/* Sign up link */}
-                        <div className="mt-4 pt-4 border-t border-white/[0.04] text-center">
-                            <p className="text-[#6b7280] text-sm">
+                        <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(26,46,29,0.5)', textAlign: 'center' }}>
+                            <p style={{ fontSize: 12, color: '#6b8f72', margin: 0 }}>
                                 New here?{' '}
-                                <Link href="/signup" className="text-violet-400 hover:text-violet-300 font-semibold transition-colors">
+                                <Link href="/signup" style={{ color: '#84cc16', fontWeight: 700, textDecoration: 'none' }}>
                                     Create a citizen account
                                 </Link>
                             </p>
                         </div>
                     </div>
 
-                    <p className="text-center text-xs text-[#4b5563] mt-6">
-                        Kavach · AI-Powered Disease Surveillance · v1.0
+                    <p style={{ textAlign: 'center', fontSize: 11, color: '#3d5a42', marginTop: 16 }}>
+                        Kavach · AI-Powered Disease Surveillance · v2.0
                     </p>
                 </div>
+
+                <style>{`
+                    @keyframes float-orb {
+                        0%, 100% { transform: translateY(0px) scale(1); }
+                        50%       { transform: translateY(-14px) scale(1.04); }
+                    }
+                    @keyframes spin-slow {
+                        from { transform: rotate(0deg); }
+                        to   { transform: rotate(360deg); }
+                    }
+                    input::placeholder { color: #3d5a42; }
+                `}</style>
             </div>
         </>
     );

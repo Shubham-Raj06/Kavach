@@ -67,7 +67,7 @@ export default function HospitalDashboard() {
     const icuPct = Math.round((selectedHospital.icuOccupied / selectedHospital.icuTotal) * 100);
 
     const kpis = [
-        { label: 'Hospitals Monitored', value: HOSPITALS.length, icon: '🏥', color: '#3b82f6', glow: 'rgba(59,130,246,0.3)' },
+        { label: 'Hospitals Monitored', value: HOSPITALS.length, icon: '🏥', color: '#84cc16', glow: 'rgba(132,204,22,0.25)' },
         { label: 'Total Beds', value: HOSPITALS.reduce((s, h) => s + h.totalBeds, 0), icon: '🛏️', color: '#a855f7', glow: 'rgba(168,85,247,0.3)' },
         { label: 'Beds Available', value: HOSPITALS.reduce((s, h) => s + (h.totalBeds - h.occupiedBeds), 0), icon: '✅', color: '#10b981', glow: 'rgba(16,185,129,0.3)' },
         { label: 'ICU Occupied', value: HOSPITALS.reduce((s, h) => s + h.icuOccupied, 0), icon: '⚡', color: '#ef4444', glow: 'rgba(239,68,68,0.3)' },
@@ -92,36 +92,36 @@ export default function HospitalDashboard() {
 
             <div style={{
                 minHeight: '100vh',
-                background: 'radial-gradient(ellipse 120% 80% at 50% -10%, rgba(16,185,129,0.08) 0%, transparent 60%), #0B1220',
-                color: '#f1f5f9',
-                fontFamily: "'Inter', sans-serif",
+                background: 'radial-gradient(ellipse 120% 80% at 50% -10%, rgba(74,222,128,0.07) 0%, transparent 60%), #080f0a',
+                color: '#ecfdf5',
+                fontFamily: "'Ubuntu', system-ui, sans-serif",
                 display: 'flex', flexDirection: 'column',
             }}>
                 {/* NAVBAR */}
                 <nav style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     padding: '0 24px', height: 52,
-                    background: 'rgba(11,18,32,0.9)',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    backdropFilter: 'blur(12px)',
+                    background: 'rgba(8,15,10,0.85)',
+                    borderBottom: '1px solid rgba(132,204,22,0.12)',
+                    backdropFilter: 'blur(18px)',
                     position: 'sticky', top: 0, zIndex: 50,
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.3px' }}>Kavach</span>
+                        <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.3px' }}>Kavach</span>
                         <span style={{
-                            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
-                            background: 'rgba(16,185,129,0.2)', color: '#34d399',
-                            border: '1px solid rgba(16,185,129,0.4)',
+                            fontSize: 16, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                            background: 'rgba(132,204,22,0.15)', color: '#84cc16',
+                            border: '1px solid rgba(132,204,22,0.35)',
                         }}>HOSPITAL</span>
                     </div>
 
                     <div style={{ display: 'flex', gap: 4 }}>
                         {NAV_LINKS.map(item => (
                             <Link key={item.href} href={item.href} style={{
-                                padding: '5px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
-                                background: item.active ? 'rgba(16,185,129,0.15)' : 'transparent',
-                                border: item.active ? '1px solid rgba(16,185,129,0.3)' : '1px solid transparent',
-                                color: item.active ? '#34d399' : 'rgba(255,255,255,0.5)',
+                                padding: '5px 14px', borderRadius: 8, fontSize: 16, fontWeight: 500,
+                                background: item.active ? 'rgba(132,204,22,0.12)' : 'transparent',
+                                border: item.active ? '1px solid rgba(132,204,22,0.28)' : '1px solid transparent',
+                                color: item.active ? '#84cc16' : 'rgba(172,220,180,0.5)',
                                 textDecoration: 'none',
                             }}>{item.label}</Link>
                         ))}
@@ -131,18 +131,18 @@ export default function HospitalDashboard() {
                         <LiveClock />
                         <div style={{
                             width: 30, height: 30, borderRadius: '50%',
-                            background: 'linear-gradient(135deg, #10b981, #3b82f6)',
+                            background: 'linear-gradient(135deg, #84cc16, #4ade80)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 12, fontWeight: 700,
+                            fontSize: 16, fontWeight: 800, color: '#080f0a',
                         }}>H</div>
                     </div>
                 </nav>
 
                 {/* PAGE TITLE */}
-                <div style={{ padding: '16px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ padding: '20px 24px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
-                        <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Hospital Surge Intelligence</h1>
-                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '2px 0 0' }}>
+                        <h1 style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 26, fontWeight: 700, margin: 0, letterSpacing: '-0.01em' }}>Hospital Surge Intelligence</h1>
+                        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0', lineHeight: 1.4 }}>
                             ICU capacity · Admission forecasting · Surge alerts
                         </p>
                     </div>
@@ -154,36 +154,36 @@ export default function HospitalDashboard() {
                                 background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
                             }}>
                                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', animation: 'pulse 1.5s infinite' }} />
-                                <span style={{ fontSize: 10, fontWeight: 600, color: '#ef4444' }}>{h.name} SURGE</span>
+                                <span style={{ fontSize: 16, fontWeight: 600, color: '#ef4444' }}>{h.name} SURGE</span>
                             </div>
                         ))}
                     </div>
                 </div>
 
                 {/* KPI STRIP */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, padding: '12px 20px 0' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 16, padding: '20px 24px 0' }}>
                     {kpis.map(kpi => (
                         <div key={kpi.label} style={{
-                            padding: '12px 14px',
+                            padding: '16px 18px',
                             background: 'rgba(255,255,255,0.03)',
                             border: '1px solid rgba(255,255,255,0.06)',
-                            borderRadius: 14,
+                            borderRadius: 16,
                             boxShadow: `0 0 20px ${kpi.glow}`,
                         }}>
-                            <div style={{ fontSize: 18, marginBottom: 6 }}>{kpi.icon}</div>
-                            <div style={{ fontSize: 22, fontWeight: 800, color: kpi.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                            <div style={{ fontSize: 26, marginBottom: 8 }}>{kpi.icon}</div>
+                            <div style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 26, fontWeight: 700, color: kpi.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                                 <CountUp target={kpi.value} />
                             </div>
-                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>{kpi.label}</div>
+                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', marginTop: 5 }}>{kpi.label}</div>
                         </div>
                     ))}
                 </div>
 
                 {/* MAIN GRID */}
-                <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 1fr', gap: 12, padding: '12px 20px', flex: 1 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr 1fr', gap: 20, padding: '20px 24px', flex: 1 }}>
                     {/* LEFT: Hospital List + Occupancy Gauges */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <div style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                        <div style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,0.4)' }}>
                             Hospitals
                         </div>
                         {HOSPITALS.map(h => {
@@ -203,7 +203,7 @@ export default function HospitalDashboard() {
                                         transition: 'all 0.2s',
                                     }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                        <div style={{ fontSize: 12, fontWeight: 700 }}>{h.name}</div>
+                                        <div style={{ fontSize: 16, fontWeight: 700 }}>{h.name}</div>
                                         {h.surgeAlert && (
                                             <span style={{
                                                 fontSize: 9, fontWeight: 700, padding: '1px 6px', borderRadius: 20,
@@ -216,7 +216,7 @@ export default function HospitalDashboard() {
                                             <div key={m.label} style={{ flex: 1 }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                                                     <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)' }}>{m.label}</span>
-                                                    <span style={{ fontSize: 10, fontWeight: 700, color: m.value >= 90 ? '#ef4444' : m.value >= 75 ? '#f97316' : '#22c55e' }}>{m.value}%</span>
+                                                    <span style={{ fontSize: 16, fontWeight: 700, color: m.value >= 90 ? '#ef4444' : m.value >= 75 ? '#f97316' : '#22c55e' }}>{m.value}%</span>
                                                 </div>
                                                 <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
                                                     <div style={{
@@ -230,8 +230,8 @@ export default function HospitalDashboard() {
                                         ))}
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{h.wardName}</span>
-                                        <span style={{ fontSize: 10, color: '#10b981' }}>+{h.admissionsToday} today</span>
+                                        <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)' }}>{h.wardName}</span>
+                                        <span style={{ fontSize: 16, color: '#10b981' }}>+{h.admissionsToday} today</span>
                                     </div>
                                 </div>
                             );
@@ -246,8 +246,8 @@ export default function HospitalDashboard() {
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: 16, padding: 16,
                         }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>48h ICU Occupancy Forecast</div>
-                            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Predicted ICU utilization across surge hospitals</div>
+                            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>48h ICU Occupancy Forecast</div>
+                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Predicted ICU utilization across surge hospitals</div>
                             <div style={{ height: 220 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <AreaChart data={ICU_FORECAST} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
@@ -261,19 +261,19 @@ export default function HospitalDashboard() {
                                                 <stop offset="95%" stopColor="#f97316" stopOpacity={0.02} />
                                             </linearGradient>
                                             <linearGradient id="sionGrad" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2} />
-                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.02} />
+                                                <stop offset="5%" stopColor="#84cc16" stopOpacity={0.2} />
+                                                <stop offset="95%" stopColor="#84cc16" stopOpacity={0.02} />
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                                        <XAxis dataKey="hour" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} interval={2} />
-                                        <YAxis domain={[60, 100]} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                        <XAxis dataKey="hour" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 16 }} axisLine={false} tickLine={false} interval={2} />
+                                        <YAxis domain={[60, 100]} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 16 }} axisLine={false} tickLine={false} />
                                         <Tooltip content={<CustomTooltip />} />
                                         <ReferenceLine y={90} stroke="#ef4444" strokeDasharray="4 4" strokeOpacity={0.6}
-                                            label={{ value: 'Critical', fill: '#ef4444', fontSize: 10, position: 'right' }} />
+                                            label={{ value: 'Critical', fill: '#ef4444', fontSize: 16, position: 'right' }} />
                                         <Area type="monotone" dataKey="kem" name="KEM ICU %" stroke="#ef4444" strokeWidth={2} fill="url(#kemGrad)" dot={false} />
                                         <Area type="monotone" dataKey="rajawadi" name="Rajawadi ICU %" stroke="#f97316" strokeWidth={2} fill="url(#rajGrad)" dot={false} />
-                                        <Area type="monotone" dataKey="sion" name="Sion ICU %" stroke="#3b82f6" strokeWidth={1.5} fill="url(#sionGrad)" dot={false} />
+                                        <Area type="monotone" dataKey="sion" name="Sion ICU %" stroke="#84cc16" strokeWidth={1.5} fill="url(#sionGrad)" dot={false} />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
@@ -285,14 +285,14 @@ export default function HospitalDashboard() {
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: 16, padding: 16,
                         }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>7-Day Admission Spike</div>
-                            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Total daily admissions across monitored wards</div>
+                            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>7-Day Admission Spike</div>
+                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)', marginBottom: 12 }}>Total daily admissions across monitored wards</div>
                             <div style={{ height: 160 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={admissionBarData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }} barSize={28}>
                                         <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                                        <XAxis dataKey="day" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                                        <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} />
+                                        <XAxis dataKey="day" tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 16 }} axisLine={false} tickLine={false} />
+                                        <YAxis tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 16 }} axisLine={false} tickLine={false} />
                                         <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
                                         <Bar dataKey="total" name="Admissions" radius={[4, 4, 0, 0]}>
                                             {admissionBarData.map((entry) => {
@@ -322,11 +322,11 @@ export default function HospitalDashboard() {
                         }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                                 <div>
-                                    <div style={{ fontSize: 14, fontWeight: 700 }}>{selectedHospital.name}</div>
-                                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>{selectedHospital.wardName}</div>
+                                    <div style={{ fontSize: 16, fontWeight: 700 }}>{selectedHospital.name}</div>
+                                    <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', marginTop: 1 }}>{selectedHospital.wardName}</div>
                                 </div>
                                 <span style={{
-                                    fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 20,
+                                    fontSize: 16, fontWeight: 700, padding: '3px 8px', borderRadius: 20,
                                     background: selectedHospital.surgeAlert ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)',
                                     color: selectedHospital.surgeAlert ? '#ef4444' : '#22c55e',
                                     border: `1px solid ${selectedHospital.surgeAlert ? 'rgba(239,68,68,0.3)' : 'rgba(34,197,94,0.3)'}`,
@@ -337,12 +337,12 @@ export default function HospitalDashboard() {
                                 {[
                                     { label: 'Bed Occupancy', value: `${occupancyPct}%`, color: occupancyPct >= 90 ? '#ef4444' : '#10b981' },
                                     { label: 'ICU Occupancy', value: `${icuPct}%`, color: icuPct >= 90 ? '#ef4444' : '#f97316' },
-                                    { label: 'Admissions Today', value: selectedHospital.admissionsToday, color: '#3b82f6' },
+                                    { label: 'Admissions Today', value: selectedHospital.admissionsToday, color: '#84cc16' },
                                     { label: 'Discharges Today', value: selectedHospital.dischargeToday, color: '#22c55e' },
                                 ].map(m => (
                                     <div key={m.label} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '8px 10px' }}>
-                                        <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{m.label}</div>
-                                        <div style={{ fontSize: 18, fontWeight: 800, color: m.color, marginTop: 2 }}>{m.value}</div>
+                                        <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)' }}>{m.label}</div>
+                                        <div style={{ fontSize: 26, fontWeight: 800, color: m.color, marginTop: 2 }}>{m.value}</div>
                                     </div>
                                 ))}
                             </div>
@@ -354,8 +354,8 @@ export default function HospitalDashboard() {
                             ].map(b => (
                                 <div key={b.label} style={{ marginBottom: 8 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)' }}>{b.label} Occupancy</span>
-                                        <span style={{ fontSize: 11, fontWeight: 700, color: b.color }}>{b.pct}%</span>
+                                        <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }}>{b.label} Occupancy</span>
+                                        <span style={{ fontSize: 16, fontWeight: 700, color: b.color }}>{b.pct}%</span>
                                     </div>
                                     <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
                                         <div style={{
@@ -381,9 +381,9 @@ export default function HospitalDashboard() {
                                 borderBottom: '1px solid rgba(255,255,255,0.06)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
                             }}>
-                                <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Surge Alerts</span>
+                                <span style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>Surge alerts</span>
                                 <span style={{
-                                    fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20,
+                                    fontSize: 16, fontWeight: 700, padding: '2px 7px', borderRadius: 20,
                                     background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)',
                                 }}>{hospitalAlerts.length}</span>
                             </div>
@@ -400,14 +400,14 @@ export default function HospitalDashboard() {
                     borderTop: '1px solid rgba(255,255,255,0.04)',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 }}>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
+                    <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }}>
                         Kavach Hospital · Surge Intelligence · Delhi Health Network
                     </span>
                     <div style={{ display: 'flex', gap: 16 }}>
                         {[{ label: 'ML Service', ok: true }, { label: 'HMIS Feed', ok: true }, { label: 'Alerts', ok: true }].map(s => (
                             <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,0.7)' }} />
-                                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{s.label}</span>
+                                <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }}>{s.label}</span>
                             </div>
                         ))}
                     </div>
@@ -421,7 +421,7 @@ export default function HospitalDashboard() {
                 }
                 ::-webkit-scrollbar { width: 4px; }
                 ::-webkit-scrollbar-track { background: transparent; }
-                ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+                ::-webkit-scrollbar-thumb { background: rgba(132,204,22,0.15); border-radius: 2px; }
             `}</style>
         </>
     );

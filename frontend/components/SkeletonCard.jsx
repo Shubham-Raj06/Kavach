@@ -1,47 +1,29 @@
-'use client';
-
-export default function SkeletonCard({ height = 80, className = '' }) {
+export default function SkeletonCard({ rows = 3, height = 12 }) {
     return (
         <div
-            className={`rounded-2xl overflow-hidden ${className}`}
             style={{
-                height,
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                position: 'relative',
+                background: 'rgba(17,31,20,0.7)',
+                border: '1px solid rgba(26,46,29,0.8)',
+                borderRadius: 12,
+                padding: '14px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
             }}
         >
-            <div
-                style={{
-                    position: 'absolute', inset: 0,
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%)',
-                    backgroundSize: '200% 100%',
-                    animation: 'shimmer 1.8s infinite',
-                }}
-            />
-            <style>{`
-                @keyframes shimmer {
-                    0% { background-position: -200% 0; }
-                    100% { background-position: 200% 0; }
-                }
-            `}</style>
-        </div>
-    );
-}
-
-export function SkeletonText({ width = '60%', height = 12 }) {
-    return (
-        <div style={{
-            width, height, borderRadius: 6,
-            background: 'rgba(255,255,255,0.06)',
-            position: 'relative', overflow: 'hidden',
-        }}>
-            <div style={{
-                position: 'absolute', inset: 0,
-                background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%)',
-                backgroundSize: '200% 100%',
-                animation: 'shimmer 1.8s infinite',
-            }} />
+            {Array.from({ length: rows }).map((_, i) => (
+                <div
+                    key={i}
+                    style={{
+                        height,
+                        borderRadius: 6,
+                        background: 'rgba(132,204,22,0.08)',
+                        animation: 'skeleton-shimmer 1.8s ease-in-out infinite',
+                        animationDelay: `${i * 0.15}s`,
+                        width: i === rows - 1 ? '65%' : '100%',
+                    }}
+                />
+            ))}
         </div>
     );
 }

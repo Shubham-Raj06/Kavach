@@ -1,26 +1,35 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { WARDS, getRiskLevel, RISK_COLORS } from '../lib/mockData';
+
+// Deterministic seeded random — no hydration mismatch
+function seededRand(seed) {
+    let s = seed;
+    return () => {
+        s = (s * 16807 + 0) % 2147483647;
+        return (s - 1) / 2147483646;
+    };
+}
 
 // Physics-based floating bubble layout
 function useBubblePositions(wards) {
     const [positions, setPositions] = useState([]);
 
     useEffect(() => {
-        // Place bubbles in a force-directed cluster pattern
-        const cx = 50, cy = 50; // center %
+        const cx = 50, cy = 50;
         const placed = wards.map((ward, i) => {
             const angle = (i / wards.length) * Math.PI * 2 - Math.PI / 2;
-            const radius = ward.riskScore > 70 ? 14 : ward.riskScore > 40 ? 22 : 30;
+            // Spread bubbles further out to fill the card
+            const radius = ward.riskScore > 70 ? 18 : ward.riskScore > 40 ? 28 : 36;
             return {
                 ...ward,
                 x: cx + Math.cos(angle) * radius,
                 y: cy + Math.sin(angle) * radius,
-                size: Math.max(60, (ward.riskScore / 100) * 160),
+                size: Math.max(56, (ward.riskScore / 100) * 150),
                 animDelay: i * 0.3,
             };
         });
-        // Put highest risk in center
+        // Highest risk stays in center
         const sorted = [...placed].sort((a, b) => b.riskScore - a.riskScore);
         sorted[0] = { ...sorted[0], x: cx, y: cy };
         setPositions(sorted);
@@ -29,19 +38,39 @@ function useBubblePositions(wards) {
     return positions;
 }
 
+// Static scatter dots that fill empty corners
+const SCATTER_DOTS = (() => {
+    const rand = seededRand(42);
+    const dots = [];
+    const RISK_PALETTE = ['#ef4444', '#f97316', '#eab308', '#22c55e'];
+    // Generate 40 small background dots spread across the whole canvas
+    for (let i = 0; i < 40; i++) {
+        dots.push({
+            id: i,
+            x: rand() * 100,
+            y: rand() * 100,
+            r: 3 + rand() * 6,
+            color: RISK_PALETTE[Math.floor(rand() * RISK_PALETTE.length)],
+            opacity: 0.12 + rand() * 0.2,
+            animDelay: rand() * 4,
+            animDuration: 2.5 + rand() * 3,
+        });
+    }
+    return dots;
+})();
+
 export default function BubbleHotspotView({ onSelectWard, selectedWardId }) {
     const bubbles = useBubblePositions(WARDS);
     const [hovered, setHovered] = useState(null);
     const [tick, setTick] = useState(0);
 
-    // Animate float
     useEffect(() => {
         const id = setInterval(() => setTick(t => t + 1), 50);
         return () => clearInterval(id);
     }, []);
 
     return (
-        <div className="relative w-full h-full overflow-hidden" style={{ minHeight: 420 }}>
+        <div className="relative w-full h-full overflow-hidden" style={{ minHeight: 380 }}>
             {/* Background grid */}
             <div className="absolute inset-0" style={{
                 backgroundImage: `
@@ -49,20 +78,39 @@ export default function BubbleHotspotView({ onSelectWard, selectedWardId }) {
           linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
           linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px)
         `,
-                backgroundSize: '100% 100%, 40px 40px, 40px 40px',
+                backgroundSize: '100% 100%, 36px 36px, 36px 36px',
             }} />
 
-            {/* Radar rings */}
-            {[1, 2, 3].map(r => (
+            {/* Radar rings — 4 rings now instead of 3 */}
+            {[1, 2, 3, 4].map(r => (
                 <div key={r} className="absolute rounded-full border border-white/[0.04] pointer-events-none"
                     style={{
-                        width: `${r * 28}%`, height: `${r * 28}%`,
-                        top: `${50 - r * 14}%`, left: `${50 - r * 14}%`,
+                        width: `${r * 22}%`, height: `${r * 22}%`,
+                        top: `${50 - r * 11}%`, left: `${50 - r * 11}%`,
                     }}
                 />
             ))}
 
-            {/* Bubbles */}
+            {/* ── Scatter dots: fill empty space ── */}
+            {SCATTER_DOTS.map(d => (
+                <div
+                    key={d.id}
+                    className="absolute rounded-full pointer-events-none"
+                    style={{
+                        left: `${d.x}%`,
+                        top: `${d.y}%`,
+                        width: d.r * 2,
+                        height: d.r * 2,
+                        transform: 'translate(-50%, -50%)',
+                        background: d.color,
+                        opacity: d.opacity,
+                        boxShadow: `0 0 ${d.r * 2}px ${d.color}66`,
+                        animation: `pulse-dot ${d.animDuration}s ${d.animDelay}s ease-in-out infinite`,
+                    }}
+                />
+            ))}
+
+            {/* ── Main ward bubbles ── */}
             {bubbles.map((ward, i) => {
                 const level = getRiskLevel(ward.riskScore);
                 const col = RISK_COLORS[level];
@@ -105,16 +153,16 @@ export default function BubbleHotspotView({ onSelectWard, selectedWardId }) {
                         {/* Label */}
                         <div className="relative z-10 text-center pointer-events-none">
                             <div className="text-white font-bold leading-none"
-                                style={{ fontSize: Math.max(10, ward.size * 0.18) }}>
+                                style={{ fontSize: Math.max(11, ward.size * 0.18) }}>
                                 {ward.riskScore}
                             </div>
                             <div className="text-white/80 font-medium leading-tight"
-                                style={{ fontSize: Math.max(8, ward.size * 0.11) }}>
+                                style={{ fontSize: Math.max(9, ward.size * 0.11) }}>
                                 {ward.wardId}
                             </div>
                             {ward.size > 80 && (
                                 <div className="text-white/60 leading-none"
-                                    style={{ fontSize: Math.max(7, ward.size * 0.09) }}>
+                                    style={{ fontSize: Math.max(8, ward.size * 0.09) }}>
                                     {ward.name}
                                 </div>
                             )}

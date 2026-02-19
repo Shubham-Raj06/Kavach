@@ -70,7 +70,7 @@ export default function GovDashboard() {
     const [selectedWard, setSelectedWard] = useState(WARDS[0]);
 
     const kpis = [
-        { label: 'Districts Monitored', value: 2, icon: '🗺️', color: '#3b82f6', glow: 'rgba(59,130,246,0.3)' },
+        { label: 'Districts Monitored', value: 2, icon: '🗺️', color: '#84cc16', glow: 'rgba(132,204,22,0.25)' },
         { label: 'Total Wards Active', value: KPI.totalWardsMonitored, icon: '📍', color: '#a855f7', glow: 'rgba(168,85,247,0.3)' },
         { label: 'Citizens at Risk', value: KPI.citizensAtRisk, icon: '👥', color: '#f97316', glow: 'rgba(249,115,22,0.3)' },
         { label: 'Predicted Outbreaks', value: KPI.predictedOutbreaks, icon: '⚠️', color: '#ef4444', glow: 'rgba(239,68,68,0.3)' },
@@ -93,36 +93,36 @@ export default function GovDashboard() {
 
             <div style={{
                 minHeight: '100vh',
-                background: 'radial-gradient(ellipse 120% 80% at 50% -10%, rgba(124,58,237,0.10) 0%, transparent 60%), #0B1220',
-                color: '#f1f5f9',
-                fontFamily: "'Inter', sans-serif",
+                background: 'radial-gradient(ellipse 120% 80% at 50% -10%, rgba(132,204,22,0.09) 0%, transparent 60%), #080f0a',
+                color: '#ecfdf5',
+                fontFamily: "'Ubuntu', system-ui, sans-serif",
                 display: 'flex', flexDirection: 'column',
             }}>
                 {/* NAVBAR */}
                 <nav style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     padding: '0 24px', height: 52,
-                    background: 'rgba(11,18,32,0.9)',
-                    borderBottom: '1px solid rgba(255,255,255,0.06)',
-                    backdropFilter: 'blur(12px)',
+                    background: 'rgba(8,15,10,0.85)',
+                    borderBottom: '1px solid rgba(132,204,22,0.12)',
+                    backdropFilter: 'blur(18px)',
                     position: 'sticky', top: 0, zIndex: 50,
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: '-0.3px' }}>Kavach</span>
+                        <span style={{ fontWeight: 700, fontSize: 16, letterSpacing: '-0.3px' }}>Kavach</span>
                         <span style={{
-                            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
-                            background: 'rgba(124,58,237,0.2)', color: '#a78bfa',
-                            border: '1px solid rgba(124,58,237,0.4)',
+                            fontSize: 16, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                            background: 'rgba(132,204,22,0.15)', color: '#84cc16',
+                            border: '1px solid rgba(132,204,22,0.35)',
                         }}>GOV</span>
                     </div>
 
                     <div style={{ display: 'flex', gap: 4 }}>
                         {NAV_LINKS.map(item => (
                             <Link key={item.href} href={item.href} style={{
-                                padding: '5px 14px', borderRadius: 8, fontSize: 13, fontWeight: 500,
-                                background: item.active ? 'rgba(124,58,237,0.15)' : 'transparent',
-                                border: item.active ? '1px solid rgba(124,58,237,0.3)' : '1px solid transparent',
-                                color: item.active ? '#a78bfa' : 'rgba(255,255,255,0.5)',
+                                padding: '5px 14px', borderRadius: 8, fontSize: 16, fontWeight: 500,
+                                background: item.active ? 'rgba(132,204,22,0.12)' : 'transparent',
+                                border: item.active ? '1px solid rgba(132,204,22,0.28)' : '1px solid transparent',
+                                color: item.active ? '#84cc16' : 'rgba(172,220,180,0.5)',
                                 textDecoration: 'none', cursor: 'pointer',
                             }}>{item.label}</Link>
                         ))}
@@ -132,18 +132,18 @@ export default function GovDashboard() {
                         <LiveClock />
                         <div style={{
                             width: 30, height: 30, borderRadius: '50%',
-                            background: 'linear-gradient(135deg, #7c3aed, #3b82f6)',
+                            background: 'linear-gradient(135deg, #84cc16, #4ade80)',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 12, fontWeight: 700,
+                            fontSize: 16, fontWeight: 800, color: '#080f0a',
                         }}>G</div>
                     </div>
                 </nav>
 
                 {/* PAGE TITLE */}
-                <div style={{ padding: '16px 20px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ padding: '20px 24px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
-                        <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>District Command Dashboard</h1>
-                        <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: '2px 0 0' }}>
+                        <h1 style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 26, fontWeight: 700, margin: 0, letterSpacing: '-0.01em' }}>District Command Dashboard</h1>
+                        <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', margin: '4px 0 0', lineHeight: 1.4 }}>
                             Delhi Municipal Corporation · Real-time outbreak intelligence
                         </p>
                     </div>
@@ -153,52 +153,52 @@ export default function GovDashboard() {
                         background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
                     }}>
                         <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', animation: 'pulse 1.5s infinite' }} />
-                        <span style={{ fontSize: 11, fontWeight: 600, color: '#ef4444' }}>LIVE MONITORING</span>
+                        <span style={{ fontSize: 16, fontWeight: 500, color: '#ef4444' }}>Live monitoring</span>
                     </div>
                 </div>
 
                 {/* KPI STRIP */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, padding: '12px 20px 0' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 16, padding: '20px 24px 0' }}>
                     {kpis.map(kpi => (
                         <div key={kpi.label} style={{
-                            padding: '12px 14px',
+                            padding: '16px 18px',
                             background: 'rgba(255,255,255,0.03)',
                             border: '1px solid rgba(255,255,255,0.06)',
-                            borderRadius: 14,
+                            borderRadius: 16,
                             boxShadow: `0 0 20px ${kpi.glow}`,
                         }}>
-                            <div style={{ fontSize: 18, marginBottom: 6 }}>{kpi.icon}</div>
-                            <div style={{ fontSize: 22, fontWeight: 800, color: kpi.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                            <div style={{ fontSize: 26, marginBottom: 8 }}>{kpi.icon}</div>
+                            <div style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 26, fontWeight: 700, color: kpi.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                                 <CountUp target={kpi.value} />
                             </div>
-                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginTop: 3 }}>{kpi.label}</div>
+                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', marginTop: 5 }}>{kpi.label}</div>
                         </div>
                     ))}
                 </div>
 
                 {/* MAIN GRID */}
                 <div style={{
-                    display: 'grid', gridTemplateColumns: '1fr 1fr 280px',
-                    gap: 12, padding: '12px 20px', flex: 1,
+                    display: 'grid', gridTemplateColumns: '1fr 1fr 300px',
+                    gap: 20, padding: '20px 24px', flex: 1,
                 }}>
                     {/* LEFT: Ward Risk Bar Chart */}
                     <div style={{
                         background: 'rgba(255,255,255,0.02)',
                         border: '1px solid rgba(255,255,255,0.06)',
-                        borderRadius: 16, padding: 16, display: 'flex', flexDirection: 'column', gap: 12,
+                        borderRadius: 16, padding: 20, display: 'flex', flexDirection: 'column', gap: 16,
                     }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <div style={{ fontSize: 13, fontWeight: 700 }}>Ward Risk Index</div>
-                                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>Top 10 wards by outbreak probability</div>
+                                <div style={{ fontSize: 16, fontWeight: 700 }}>Ward Risk Index</div>
+                                <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)', marginTop: 2 }}>Top 10 wards by outbreak probability</div>
                             </div>
                         </div>
                         <div style={{ flex: 1, minHeight: 280 }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={wardBarData} layout="vertical" margin={{ top: 0, right: 20, left: 60, bottom: 0 }} barSize={10}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
-                                    <XAxis type="number" domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                                    <YAxis type="category" dataKey="name" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11 }} axisLine={false} tickLine={false} width={58} />
+                                    <XAxis type="number" domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.35)', fontSize: 16 }} axisLine={false} tickLine={false} />
+                                    <YAxis type="category" dataKey="name" tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 16 }} axisLine={false} tickLine={false} width={58} />
                                     <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
                                     <Bar dataKey="risk" name="Risk Score" radius={[0, 4, 4, 0]}>
                                         {wardBarData.map((entry) => {
@@ -220,15 +220,15 @@ export default function GovDashboard() {
                                     border: '1px solid rgba(255,255,255,0.06)',
                                     borderRadius: 10,
                                 }}>
-                                    <div style={{ fontSize: 11, fontWeight: 700, marginBottom: 6 }}>{d.district}</div>
+                                    <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>{d.district}</div>
                                     {[
                                         { label: 'Avg Risk', value: `${d.avgRisk}%`, color: RISK_COLORS[getRiskLevel(d.avgRisk)].text },
                                         { label: 'Citizens at Risk', value: `${(d.citizensAtRisk / 1000).toFixed(0)}K`, color: '#f97316' },
                                         { label: 'Critical Wards', value: d.criticalWards, color: '#ef4444' },
                                     ].map(m => (
                                         <div key={m.label} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                                            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{m.label}</span>
-                                            <span style={{ fontSize: 11, fontWeight: 700, color: m.color }}>{m.value}</span>
+                                            <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)' }}>{m.label}</span>
+                                            <span style={{ fontSize: 16, fontWeight: 700, color: m.color }}>{m.value}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -246,7 +246,7 @@ export default function GovDashboard() {
                         }}>
                             <div style={{ position: 'absolute', top: 12, left: 14, zIndex: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', animation: 'pulse 1.5s infinite', boxShadow: '0 0 8px rgba(239,68,68,0.8)' }} />
-                                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: '0.05em' }}>LIVE OUTBREAK MAP</span>
+                                <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>Outbreak map</span>
                             </div>
                             <BubbleHotspotView onSelectWard={setSelectedWard} selectedWardId={selectedWard?.wardId} />
                         </div>
@@ -257,14 +257,14 @@ export default function GovDashboard() {
                             border: '1px solid rgba(255,255,255,0.06)',
                             borderRadius: 16, padding: 14,
                         }}>
-                            <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10 }}>Resource Demand Prediction (72h)</div>
+                            <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 10 }}>Resource Demand Prediction (72h)</div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                                 {RESOURCE_PREDICTION.map(r => {
                                     const pct = Math.min(100, (r.predicted72h / r.critical) * 100);
                                     const isCritical = r.predicted72h > r.critical;
                                     return (
                                         <div key={r.resource} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                                            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', width: 120, flexShrink: 0 }}>{r.resource}</div>
+                                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.6)', width: 120, flexShrink: 0 }}>{r.resource}</div>
                                             <div style={{ flex: 1, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
                                                 <div style={{
                                                     height: '100%', borderRadius: 3,
@@ -273,7 +273,7 @@ export default function GovDashboard() {
                                                     boxShadow: isCritical ? '0 0 6px rgba(239,68,68,0.5)' : '0 0 6px rgba(59,130,246,0.4)',
                                                 }} />
                                             </div>
-                                            <div style={{ fontSize: 10, fontWeight: 700, color: isCritical ? '#ef4444' : '#22c55e', width: 60, textAlign: 'right', flexShrink: 0 }}>
+                                            <div style={{ fontSize: 16, fontWeight: 700, color: isCritical ? '#ef4444' : '#22c55e', width: 60, textAlign: 'right', flexShrink: 0 }}>
                                                 {r.predicted72h.toLocaleString()} {r.unit}
                                             </div>
                                             {isCritical && (
@@ -300,12 +300,12 @@ export default function GovDashboard() {
                                 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
                                         <div>
-                                            <div style={{ fontSize: 14, fontWeight: 700 }}>{selectedWard.name}</div>
-                                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>{selectedWard.wardId} · {selectedWard.district}</div>
+                                            <div style={{ fontSize: 16, fontWeight: 700 }}>{selectedWard.name}</div>
+                                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>{selectedWard.wardId} · {selectedWard.district}</div>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
                                             <div style={{ fontSize: 26, fontWeight: 900, color: col.text, lineHeight: 1 }}>{selectedWard.riskScore}%</div>
-                                            <div style={{ fontSize: 10, color: col.text, fontWeight: 700 }}>{level}</div>
+                                            <div style={{ fontSize: 16, color: col.text, fontWeight: 700 }}>{level}</div>
                                         </div>
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
@@ -316,8 +316,8 @@ export default function GovDashboard() {
                                             { label: 'Anomaly', value: selectedWard.isAnomaly ? '⚡ Yes' : '— No' },
                                         ].map(m => (
                                             <div key={m.label} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '5px 8px' }}>
-                                                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{m.label}</div>
-                                                <div style={{ fontSize: 11, fontWeight: 600, marginTop: 2 }}>{m.value}</div>
+                                                <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)' }}>{m.label}</div>
+                                                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 2 }}>{m.value}</div>
                                             </div>
                                         ))}
                                     </div>
@@ -337,9 +337,9 @@ export default function GovDashboard() {
                                 borderBottom: '1px solid rgba(255,255,255,0.06)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
                             }}>
-                                <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Active Alerts</span>
+                                <span style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>Active alerts</span>
                                 <span style={{
-                                    fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20,
+                                    fontSize: 16, fontWeight: 700, padding: '2px 7px', borderRadius: 20,
                                     background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)',
                                 }}>{ALERTS.length}</span>
                             </div>
@@ -356,14 +356,14 @@ export default function GovDashboard() {
                     borderTop: '1px solid rgba(255,255,255,0.04)',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 }}>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
+                    <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }}>
                         Kavach GOV · Delhi Municipal Corporation · District Command View
                     </span>
                     <div style={{ display: 'flex', gap: 16 }}>
                         {[{ label: 'ML Service', ok: true }, { label: 'Data Feed', ok: true }, { label: 'Alerts', ok: true }].map(s => (
                             <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <div style={{ width: 5, height: 5, borderRadius: '50%', background: s.ok ? '#22c55e' : '#ef4444', boxShadow: s.ok ? '0 0 6px rgba(34,197,94,0.7)' : 'none' }} />
-                                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{s.label}</span>
+                                <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.3)' }}>{s.label}</span>
                             </div>
                         ))}
                     </div>
@@ -377,7 +377,7 @@ export default function GovDashboard() {
                 }
                 ::-webkit-scrollbar { width: 4px; }
                 ::-webkit-scrollbar-track { background: transparent; }
-                ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+                ::-webkit-scrollbar-thumb { background: rgba(132,204,22,0.15); border-radius: 2px; }
             `}</style>
         </>
     );

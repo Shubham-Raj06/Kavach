@@ -100,7 +100,7 @@ export default function Dashboard() {
     // ── Dynamic background based on command mode ──────────────────────────────
     const bgGradient = commandMode
         ? 'radial-gradient(ellipse 120% 80% at 50% -10%, rgba(127,29,29,0.38) 0%, rgba(153,27,27,0.15) 35%, transparent 65%), radial-gradient(ellipse 80% 60% at 80% 100%, rgba(239,68,68,0.06) 0%, transparent 50%), #06090f'
-        : 'radial-gradient(ellipse 120% 80% at 50% -10%, rgba(59,130,246,0.12) 0%, transparent 60%), #080d1a';
+        : 'radial-gradient(ellipse 120% 80% at 50% -10%, rgba(132,204,22,0.10) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 100%, rgba(74,222,128,0.05) 0%, transparent 50%), #080f0a';
 
     const level = selectedWard ? getRiskLevel(selectedWard.riskScore) : 'LOW';
     const col = RISK_COLORS[level];
@@ -118,8 +118,8 @@ export default function Dashboard() {
                 transition={{ duration: 0.4, ease: 'easeInOut' }}
                 style={{
                     minHeight: '100vh',
-                    color: '#f1f5f9',
-                    fontFamily: "'Inter', sans-serif",
+                    color: '#ecfdf5',
+                    fontFamily: "'Ubuntu', system-ui, sans-serif",
                     display: 'flex',
                     flexDirection: 'column',
                 }}
@@ -148,7 +148,7 @@ export default function Dashboard() {
                 {/* ── KPI STRIP ────────────────────────────────────────────── */}
                 <div style={{
                     display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: 12, padding: '12px 16px 0',
+                    gap: 20, padding: '20px 24px 0',
                 }}>
                     {[
                         { label: 'Predicted Outbreaks', value: KPI.predictedOutbreaks, icon: '⚠️', color: '#ef4444', glow: 'rgba(239,68,68,0.3)' },
@@ -156,23 +156,23 @@ export default function Dashboard() {
                         { label: 'Hospitals on Surge', value: KPI.hospitalsOnSurge, icon: '🏥', color: '#a855f7', glow: 'rgba(168,85,247,0.3)' },
                     ].map(kpi => (
                         <div key={kpi.label} style={{
-                            padding: '12px 16px',
+                            padding: '18px 20px',
                             background: 'rgba(255,255,255,0.03)',
                             border: '1px solid rgba(255,255,255,0.06)',
-                            borderRadius: 14, boxShadow: `0 0 20px ${kpi.glow}`,
-                            display: 'flex', alignItems: 'center', gap: 12,
+                            borderRadius: 16, boxShadow: `0 0 24px ${kpi.glow}`,
+                            display: 'flex', alignItems: 'center', gap: 16,
                         }}>
                             <div style={{
                                 width: 40, height: 40, borderRadius: 10,
                                 background: kpi.glow, border: `1px solid ${kpi.color}33`,
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: 18, flexShrink: 0,
+                                fontSize: 26, flexShrink: 0,
                             }}>{kpi.icon}</div>
                             <div>
-                                <div style={{ fontSize: 22, fontWeight: 800, color: kpi.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                                <div style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 32, fontWeight: 700, color: kpi.color, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                                     <CountUp target={kpi.value} />
                                 </div>
-                                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{kpi.label} (next 48h)</div>
+                                <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{kpi.label} · next 48h</div>
                             </div>
                         </div>
                     ))}
@@ -181,44 +181,44 @@ export default function Dashboard() {
                 {/* ── MAIN 3-COLUMN GRID ─────────────────────────────────────── */}
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: '220px 1fr 290px',
-                    gap: 12, padding: '12px 16px',
+                    gridTemplateColumns: '230px 1fr 300px',
+                    gap: 20, padding: '20px 24px',
                     flex: 1, minHeight: 0,
                 }}>
 
                     {/* ── LEFT: Ward risk index ──────────────────────────────── */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, overflow: 'hidden' }}>
                         {/* Summary */}
                         <div style={{
-                            padding: '12px 14px',
+                            padding: '18px 20px',
                             background: 'rgba(255,255,255,0.03)',
                             border: '1px solid rgba(255,255,255,0.06)',
-                            borderRadius: 14,
+                            borderRadius: 16,
                         }}>
-                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-                                Ward Risk Index
+                            <div style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 16, fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: 12 }}>
+                                Ward overview
                             </div>
                             {[
-                                { label: 'Wards Monitored', value: KPI.totalWardsMonitored, color: '#60a5fa' },
+                                { label: 'Wards Monitored', value: KPI.totalWardsMonitored, color: '#84cc16' },
                                 { label: 'Active Hotspots', value: KPI.activeHotspots, color: '#f97316' },
                                 { label: 'Critical Alerts', value: KPI.criticalAlertsToday, color: '#ef4444' },
                             ].map(m => (
                                 <div key={m.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                    <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>{m.label}</span>
-                                    <span style={{ fontSize: 14, fontWeight: 700, color: m.color }}>{m.value}</span>
+                                    <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)' }}>{m.label}</span>
+                                    <span style={{ fontSize: 16, fontWeight: 700, color: m.color }}>{m.value}</span>
                                 </div>
                             ))}
                             <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>Top Category</div>
-                                <div style={{ fontSize: 12, fontWeight: 600, color: '#60a5fa' }}>
+                                <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>Top Category</div>
+                                <div style={{ fontSize: 16, fontWeight: 600, color: '#84cc16' }}>
                                     {CATEGORY_ICON[KPI.topCategory]} {KPI.topCategory.replace('_', ' ')}
                                 </div>
                             </div>
                         </div>
 
                         {/* Ward list label */}
-                        <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0 2px' }}>
-                            Wards by Risk
+                        <div style={{ fontFamily: "'Ubuntu', sans-serif", fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.25)', padding: '0 2px' }}>
+                            Wards by risk
                         </div>
 
                         {/* Ward list */}
@@ -253,11 +253,11 @@ export default function Dashboard() {
                                         }}
                                     >
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                                            <span style={{ fontSize: 12, fontWeight: 600 }}>{ward.name}</span>
-                                            <span style={{ fontSize: 13, fontWeight: 800, color: wCol.text }}>{ward.riskScore}</span>
+                                            <span style={{ fontSize: 16, fontWeight: 600 }}>{ward.name}</span>
+                                            <span style={{ fontSize: 16, fontWeight: 700, color: wCol.text }}>{ward.riskScore}</span>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{ward.wardId}</span>
+                                            <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)' }}>{ward.wardId}</span>
                                             <Sparkline data={ward.forecastTrend} color={wCol.text} />
                                         </div>
                                     </motion.div>
@@ -287,8 +287,8 @@ export default function Dashboard() {
                                         boxShadow: '0 0 8px rgba(239,68,68,0.8)',
                                     }}
                                 />
-                                <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600, letterSpacing: '0.05em' }}>
-                                    LIVE OUTBREAK INTELLIGENCE
+                                <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>
+                                    Live outbreak intelligence
                                 </span>
                             </div>
 
@@ -339,17 +339,17 @@ export default function Dashboard() {
                                     <button key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
                                         style={{
-                                            padding: '9px 12px', fontSize: 11, fontWeight: 500,
+                                            padding: '10px 14px', fontSize: 16, fontWeight: activeTab === tab.id ? 600 : 400,
                                             background: 'transparent', border: 'none',
-                                            borderBottom: activeTab === tab.id ? '2px solid #3b82f6' : '2px solid transparent',
-                                            color: activeTab === tab.id ? '#60a5fa' : 'rgba(255,255,255,0.4)',
+                                            borderBottom: activeTab === tab.id ? '2px solid #84cc16' : '2px solid transparent',
+                                            color: activeTab === tab.id ? '#84cc16' : 'rgba(255,255,255,0.4)',
                                             cursor: 'pointer', transition: 'all 0.15s', marginBottom: -1,
                                         }}
                                     >{tab.label}</button>
                                 ))}
                                 {selectedWard && (
                                     <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>
+                                        <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.35)' }}>
                                             {selectedWard.wardId} · {selectedWard.name}
                                         </span>
                                         <RiskBadge score={selectedWard.riskScore} />
@@ -391,16 +391,16 @@ export default function Dashboard() {
                                 >
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                                         <div>
-                                            <div style={{ fontSize: 15, fontWeight: 700 }}>{selectedWard.name}</div>
-                                            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>
+                                            <div style={{ fontSize: 16, fontWeight: 700 }}>{selectedWard.name}</div>
+                                            <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>
                                                 {selectedWard.wardId} · {selectedWard.city}
                                             </div>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <div style={{ fontSize: 28, fontWeight: 900, color: col.text, lineHeight: 1 }}>
+                                            <div style={{ fontSize: 32, fontWeight: 900, color: col.text, lineHeight: 1 }}>
                                                 {selectedWard.riskScore}%
                                             </div>
-                                            <div style={{ fontSize: 10, color: col.text, fontWeight: 700 }}>{level}</div>
+                                            <div style={{ fontSize: 16, color: col.text, fontWeight: 700 }}>{level}</div>
                                         </div>
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -412,7 +412,7 @@ export default function Dashboard() {
                                         ].map(m => (
                                             <div key={m.label} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: '6px 8px' }}>
                                                 <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{m.label}</div>
-                                                <div style={{ fontSize: 12, fontWeight: 600, marginTop: 2 }}>{m.value}</div>
+                                                <div style={{ fontSize: 16, fontWeight: 600, marginTop: 2 }}>{m.value}</div>
                                             </div>
                                         ))}
                                     </div>
@@ -443,11 +443,11 @@ export default function Dashboard() {
                                 borderBottom: '1px solid rgba(255,255,255,0.06)',
                                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0,
                             }}>
-                                <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                                <span style={{ fontSize: 16, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                                     {commandMode ? '🚨 Priority Alerts' : 'Active Alerts'}
                                 </span>
                                 <span style={{
-                                    fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 20,
+                                    fontSize: 16, fontWeight: 700, padding: '2px 7px', borderRadius: 20,
                                     background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)',
                                 }}>{ALERTS.length}</span>
                             </div>
@@ -467,7 +467,7 @@ export default function Dashboard() {
                     borderTop: '1px solid rgba(255,255,255,0.04)',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 }}>
-                    <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.2)' }}>
+                    <span style={{ fontSize: 16, color: 'rgba(255,255,255,0.2)' }}>
                         Kavach AI Outbreak Intelligence · NCR Command Center · v2.0
                     </span>
                     <div style={{ display: 'flex', gap: 16 }}>
@@ -484,7 +484,7 @@ export default function Dashboard() {
                                     boxShadow: s.warn ? '0 0 6px rgba(239,68,68,0.9)' : s.ok ? '0 0 6px rgba(34,197,94,0.7)' : '0 0 6px rgba(239,68,68,0.7)',
                                     animation: s.warn ? 'pulse 1.2s infinite' : 'none',
                                 }} />
-                                <span style={{ fontSize: 10, color: s.warn ? '#ef4444' : 'rgba(255,255,255,0.3)', fontWeight: s.warn ? 700 : 400 }}>
+                                <span style={{ fontSize: 16, color: s.warn ? '#ef4444' : 'rgba(255,255,255,0.3)', fontWeight: s.warn ? 700 : 400 }}>
                                     {s.label}
                                 </span>
                             </div>

@@ -1,15 +1,13 @@
-const prisma = require('../utils/prisma');
+const { CitizenReport } = require('../models');
 const logger = require('../utils/logger');
 
 exports.create = async (req, res, next) => {
     try {
         const { wardId, latitude, longitude, syndromeType, description, severity } = req.body;
-        const report = await prisma.citizenReport.create({
-            data: {
-                userId: req.user.id,
-                wardId, latitude, longitude,
-                syndromeType, description, severity,
-            },
+        const report = await CitizenReport.create({
+            userId: req.user.id,
+            wardId, latitude, longitude,
+            syndromeType, description, severity,
         });
         logger.info(`Citizen report: Ward ${wardId} | ${syndromeType} | severity ${severity}`);
         res.status(201).json(report);
@@ -21,39 +19,29 @@ exports.create = async (req, res, next) => {
 exports.list = async (req, res, next) => {
     try {
         const { wardId, syndromeType, from, limit = 200 } = req.query;
-        const where = {};
-        if (wardId) where.wardId = wardId;
-        if (syndromeType) where.syndromeType = syndromeType;
-        if (from) where.reportedAt = { gte: new Date(from) };
+        const filter = {};
+        if (wardId) filter.wardId = wardId;
+        if (syndromeType) filter.syndromeType = syndromeType;
+        if (from) filter.createdAt = { $gte: new Date(from) };
 
-        const reports = await prisma.citizenReport.findMany({
-            where, orderBy: { reportedAt: 'desc' }, take: parseInt(limit),
-            select: {
-                id: true, wardId: true, latitude: true, longitude: true,
-                syndromeType: true, severity: true, reportedAt: true, isVerified: true,
-            },
-        });
+        const reports = await CitizenReport.find(filter)
+            .sort({ createdAt: -1 })
+            .limit(parseInt(limit))
+            .select('wardId latitude longitude syndromeType severity createdAt isVerified');
         res.json(reports);
     } catch (err) {
         next(err);
     }
 };
 
-/**
- * Returns geo-cluster density for a ward in the last 24h
- * Used by ML feature engineering
- */
 exports.clusterByWard = async (req, res, next) => {
     try {
         const { wardId } = req.params;
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-        const reports = await prisma.citizenReport.findMany({
-            where: { wardId, reportedAt: { gte: since } },
-            select: { latitude: true, longitude: true, syndromeType: true, severity: true },
-        });
+        const reports = await CitizenReport.find({ wardId, createdAt: { $gte: since } })
+            .select('latitude longitude syndromeType severity');
 
-        // Group by syndrome
         const byType = reports.reduce((acc, r) => {
             acc[r.syndromeType] = (acc[r.syndromeType] || 0) + 1;
             return acc;
@@ -64,7 +52,7 @@ exports.clusterByWard = async (req, res, next) => {
             totalReports: reports.length,
             since: since.toISOString(),
             byType,
-            points: reports, // lat/lng for heatmap
+            points: reports,
         });
     } catch (err) {
         next(err);

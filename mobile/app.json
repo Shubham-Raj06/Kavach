@@ -36,6 +36,9 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "extra": {
+      "apiUrl": "http://10.69.18.203:5000"
+    },
     "plugins": [
       [
         "expo-notifications",

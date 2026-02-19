@@ -53,17 +53,34 @@ const safeUser = (u) => ({
 
 exports.register = async (req, res, next) => {
     try {
+        console.log('📝 Register Payload:', req.body); // DEBUG
         const { email, password, role = 'CITIZEN', name, wardId } = req.body;
 
         if (ADMIN_ONLY_ROLES.includes(role)) {
             return res.status(403).json({ error: `Role '${role}' can only be created by a SUPER_ADMIN.` });
         }
 
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: 'Name, email, and password are required.' });
+        }
+
         const existing = await User.findOne({ email: email.toLowerCase() });
         if (existing) return res.status(409).json({ error: 'Email already registered.' });
 
-        const passwordHash = await bcrypt.hash(password, 12);
-        const user = await User.create({ email: email.toLowerCase(), passwordHash, role, name, wardId: wardId || undefined });
+        // Map wardId -> ward (Number 1-272). Required by schema.
+        const wardNum = parseInt(wardId || req.body.ward, 10);
+        if (isNaN(wardNum) || wardNum < 1 || wardNum > 272) {
+            return res.status(400).json({ error: 'Ward must be a number between 1 and 272.' });
+        }
+
+        // Pass raw password - schema pre-save hook hashes it
+        const user = await User.create({
+            email: email.toLowerCase(),
+            password,
+            role: (role || 'citizen').toLowerCase(),
+            name: name.trim(),
+            ward: wardNum
+        });
 
         const { raw, hash } = await generateRefreshToken();
         await storeRefreshToken(user._id, hash);
@@ -83,10 +100,15 @@ exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required.' });
+        }
+
         const user = await User.findOne({ email: email.toLowerCase() });
         if (!user) return res.status(401).json({ error: 'Invalid credentials.' });
 
-        const valid = await bcrypt.compare(password, user.passwordHash);
+        // Use schema method which compares against user.password
+        const valid = await user.comparePassword(password);
         if (!valid) return res.status(401).json({ error: 'Invalid credentials.' });
 
         if (!user.isActive) {

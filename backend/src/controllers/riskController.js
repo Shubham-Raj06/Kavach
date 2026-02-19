@@ -1,4 +1,4 @@
-const prisma = require('../utils/prisma');
+const { RiskPrediction, Ward } = require('../models');
 const mlService = require('../services/mlService');
 const alertService = require('../services/alertService');
 const featureService = require('../services/featureService');
@@ -6,39 +6,29 @@ const logger = require('../utils/logger');
 
 /**
  * POST /api/risk/predict
- * Orchestrates: feature engineering → ML call → store prediction → auto-alert if threshold exceeded
  */
 exports.predict = async (req, res, next) => {
     try {
         const { wardId, forecastHorizon = 48 } = req.body;
 
-        // 1. Verify ward exists
-        const ward = await prisma.ward.findUnique({ where: { id: wardId } });
+        const ward = await Ward.findById(wardId);
         if (!ward) return res.status(404).json({ error: 'Ward not found' });
 
-        // 2. Engineer features from last 7 days of data
         const features = await featureService.buildFeatures(wardId);
-
-        // 3. Call Python ML microservice
         const mlResult = await mlService.predict({ wardId, features, forecastHorizon });
-        // mlResult: { riskScore, outbreakCategory, confidence, isAnomaly, shapReasons, outbreakReasons }
 
-        // 4. Store prediction
-        const prediction = await prisma.riskPrediction.create({
-            data: {
-                wardId,
-                forecastHorizon,
-                riskScore: mlResult.riskScore,
-                outbreakCategory: mlResult.outbreakCategory,
-                confidence: mlResult.confidence,
-                isAnomaly: mlResult.isAnomaly,
-                shapReasons: JSON.stringify(mlResult.shapReasons || []),
-                outbreakReasons: JSON.stringify(mlResult.outbreakReasons || []),
-                rawFeatures: JSON.stringify(features),
-            },
+        const prediction = await RiskPrediction.create({
+            wardId,
+            forecastHorizon,
+            riskScore: mlResult.riskScore,
+            outbreakCategory: mlResult.outbreakCategory,
+            confidence: mlResult.confidence,
+            isAnomaly: mlResult.isAnomaly,
+            shapReasons: JSON.stringify(mlResult.shapReasons || []),
+            outbreakReasons: JSON.stringify(mlResult.outbreakReasons || []),
+            rawFeatures: JSON.stringify(features),
         });
 
-        // 5. Auto-trigger alert if risk exceeds threshold
         const threshold = parseFloat(process.env.RISK_ALERT_THRESHOLD || '0.7');
         if (mlResult.riskScore >= threshold) {
             await alertService.triggerAutoAlert(prediction, ward);
@@ -46,7 +36,7 @@ exports.predict = async (req, res, next) => {
 
         logger.info(`Risk prediction: Ward ${wardId} | score=${mlResult.riskScore} | ${mlResult.outbreakCategory}`);
         res.json({
-            ...prediction,
+            ...prediction.toObject(),
             shapReasons: JSON.parse(prediction.shapReasons || '[]'),
             outbreakReasons: JSON.parse(prediction.outbreakReasons || '[]'),
         });
@@ -57,30 +47,24 @@ exports.predict = async (req, res, next) => {
 
 /**
  * GET /api/risk/heatmap
- * Returns latest risk score per ward for Mapbox heatmap
  */
 exports.heatmap = async (req, res, next) => {
     try {
-        const wards = await prisma.ward.findMany({
-            include: {
-                riskPredictions: {
-                    orderBy: { predictedAt: 'desc' },
-                    take: 1,
-                    select: { riskScore: true, outbreakCategory: true, confidence: true, predictedAt: true },
-                },
-            },
-        });
+        const wards = await Ward.find();
 
-        const heatmapData = wards.map((w) => ({
-            wardId: w.id,
-            name: w.name,
-            city: w.city,
-            latitude: w.latitude,
-            longitude: w.longitude,
-            riskScore: w.riskPredictions[0]?.riskScore ?? null,
-            outbreakCategory: w.riskPredictions[0]?.outbreakCategory ?? null,
-            confidence: w.riskPredictions[0]?.confidence ?? null,
-            lastPredicted: w.riskPredictions[0]?.predictedAt ?? null,
+        const heatmapData = await Promise.all(wards.map(async (w) => {
+            const latest = await RiskPrediction.findOne({ wardId: w._id }).sort({ createdAt: -1 });
+            return {
+                wardId: w._id,
+                name: w.name,
+                city: w.city,
+                latitude: w.latitude,
+                longitude: w.longitude,
+                riskScore: latest?.riskScore ?? null,
+                outbreakCategory: latest?.outbreakCategory ?? null,
+                confidence: latest?.confidence ?? null,
+                lastPredicted: latest?.createdAt ?? null,
+            };
         }));
 
         res.json(heatmapData);
@@ -91,19 +75,16 @@ exports.heatmap = async (req, res, next) => {
 
 /**
  * GET /api/risk
- * Paginated list of all predictions
  */
 exports.list = async (req, res, next) => {
     try {
         const { wardId, limit = 50, offset = 0 } = req.query;
-        const where = wardId ? { wardId } : {};
-        const predictions = await prisma.riskPrediction.findMany({
-            where,
-            orderBy: { predictedAt: 'desc' },
-            take: parseInt(limit),
-            skip: parseInt(offset),
-            include: { ward: { select: { name: true, city: true } } },
-        });
+        const filter = wardId ? { wardId } : {};
+        const predictions = await RiskPrediction.find(filter)
+            .sort({ createdAt: -1 })
+            .limit(parseInt(limit))
+            .skip(parseInt(offset))
+            .populate('wardId', 'name city');
         res.json(predictions);
     } catch (err) {
         next(err);
@@ -112,19 +93,17 @@ exports.list = async (req, res, next) => {
 
 /**
  * GET /api/risk/:wardId
- * Latest prediction for a specific ward (with full insight box)
  */
 exports.latestByWard = async (req, res, next) => {
     try {
         const { wardId } = req.params;
-        const prediction = await prisma.riskPrediction.findFirst({
-            where: { wardId },
-            orderBy: { predictedAt: 'desc' },
-            include: { ward: { select: { name: true, city: true, latitude: true, longitude: true } } },
-        });
+        const prediction = await RiskPrediction.findOne({ wardId })
+            .sort({ createdAt: -1 })
+            .populate('wardId', 'name city latitude longitude');
+
         if (!prediction) return res.status(404).json({ error: 'No prediction found for this ward' });
         res.json({
-            ...prediction,
+            ...prediction.toObject(),
             shapReasons: JSON.parse(prediction.shapReasons || '[]'),
             outbreakReasons: JSON.parse(prediction.outbreakReasons || '[]'),
         });
@@ -135,22 +114,19 @@ exports.latestByWard = async (req, res, next) => {
 
 /**
  * GET /api/risk/my-ward
- * Latest prediction for the authenticated user's ward (mobile app)
  */
 exports.myWard = async (req, res, next) => {
     try {
         const wardId = req.user?.wardId;
         if (!wardId) return res.status(400).json({ error: 'No ward assigned to your account' });
 
-        const prediction = await prisma.riskPrediction.findFirst({
-            where: { wardId },
-            orderBy: { predictedAt: 'desc' },
-            include: { ward: { select: { name: true, city: true, latitude: true, longitude: true } } },
-        });
-        if (!prediction) return res.status(404).json({ error: 'No prediction found for your ward' });
+        const prediction = await RiskPrediction.findOne({ wardId })
+            .sort({ createdAt: -1 })
+            .populate('wardId', 'name city latitude longitude');
 
+        if (!prediction) return res.status(404).json({ error: 'No prediction found for your ward' });
         res.json({
-            ...prediction,
+            ...prediction.toObject(),
             shapReasons: JSON.parse(prediction.shapReasons || '[]'),
             outbreakReasons: JSON.parse(prediction.outbreakReasons || '[]'),
         });

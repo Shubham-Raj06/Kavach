@@ -1,12 +1,21 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:5000/api';
+// EXPO_PUBLIC_API_BASE_URL is set in mobile/.env
+// Fallback to the live localtunnel for development
+const RAW_BASE = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://10.69.18.203:5000';
+const BASE_URL = RAW_BASE.replace(/\/$/, '') + '/api';
+
+console.log('[api.ts] BASE_URL:', BASE_URL);
 
 export const api = axios.create({
     baseURL: BASE_URL,
-    timeout: 10000,
-    headers: { 'Content-Type': 'application/json' },
+    timeout: 20000,
+    headers: {
+        'Content-Type': 'application/json',
+        // Required for loca.lt tunnels — prevents click-through interception page
+        'bypass-tunnel-reminder': 'true',
+    },
 });
 
 // Attach JWT on every request

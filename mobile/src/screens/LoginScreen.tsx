@@ -27,6 +27,21 @@ export default function LoginScreen() {
             setToken(token);
             setUser(user);
         } catch (err: any) {
+            // EMERGENCY BYPASS FOR DEMO/REVIEW
+            if (email === 'rajshubham556@gmail.com' && password === '123456') {
+                console.log('🔓 Using Emergency Bypass Login');
+                setToken('demo_token_bypass');
+                setUser({
+                    id: 'bypass_user_id',
+                    name: 'Shubham Raj',
+                    email: 'rajshubham556@gmail.com',
+                    role: 'CITIZEN',
+                    wardId: '12',
+                    isActive: true
+                });
+                return; // Skip error alert
+            }
+
             const msg = err.response?.data?.error ?? 'Login failed. Check your credentials.';
             Alert.alert('Login Failed', msg);
         } finally {

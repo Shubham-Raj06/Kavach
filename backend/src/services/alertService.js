@@ -1,12 +1,12 @@
 const nodemailer = require('nodemailer');
-const prisma = require('../utils/prisma');
+const { Alert, User } = require('../models');
 const logger = require('../utils/logger');
 
 // ── Email Transport (Gmail SMTP) ─────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT || '465'),
-    secure: true, // SSL for port 465
+    secure: true,
     auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
@@ -31,33 +31,29 @@ try {
     logger.warn('Firebase Admin not configured — push notifications disabled');
 }
 
-// ── Severity → Color Map ─────────────────────────────────────────────────────
 const SEVERITY_EMOJI = { LOW: '🟡', MEDIUM: '🟠', HIGH: '🔴', CRITICAL: '🚨' };
 
 /**
  * Auto-triggered when riskScore >= threshold after a prediction.
  */
 exports.triggerAutoAlert = async (prediction, ward) => {
-    const severity = prediction.riskScore >= 0.9 ? 'CRITICAL'
-        : prediction.riskScore >= 0.8 ? 'HIGH'
-            : prediction.riskScore >= 0.7 ? 'MEDIUM' : 'LOW';
+    const score = prediction.riskScore;
+    const severity = score >= 0.9 ? 'CRITICAL' : score >= 0.8 ? 'HIGH' : score >= 0.7 ? 'MEDIUM' : 'LOW';
 
     const reasons = Array.isArray(prediction.outbreakReasons)
         ? prediction.outbreakReasons.join('\n• ')
         : '';
 
-    const message = `${SEVERITY_EMOJI[severity]} ${severity} outbreak risk detected in ${ward.name}, ${ward.city}.\n\nCategory: ${prediction.outbreakCategory}\nRisk Score: ${(prediction.riskScore * 100).toFixed(0)}%\nConfidence: ${(prediction.confidence * 100).toFixed(0)}%\n\nKey Signals:\n• ${reasons}`;
+    const message = `${SEVERITY_EMOJI[severity]} ${severity} outbreak risk detected in ${ward.name}, ${ward.city}.\n\nCategory: ${prediction.outbreakCategory}\nRisk Score: ${(score * 100).toFixed(0)}%\nConfidence: ${(prediction.confidence * 100).toFixed(0)}%\n\nKey Signals:\n• ${reasons}`;
 
-    const alert = await prisma.alert.create({
-        data: {
-            wardId: ward.id,
-            predictionId: prediction.id,
-            severity,
-            outbreakCategory: prediction.outbreakCategory,
-            message,
-            recommendedAction: getRecommendedAction(prediction.outbreakCategory, severity),
-            recipientType: 'ALL',
-        },
+    const alert = await Alert.create({
+        wardId: ward._id,
+        predictionId: prediction._id,
+        severity,
+        outbreakCategory: prediction.outbreakCategory,
+        message,
+        recommendedAction: getRecommendedAction(prediction.outbreakCategory, severity),
+        recipientType: 'ALL',
     });
 
     await exports.dispatch(alert);
@@ -74,34 +70,22 @@ exports.dispatch = async (alert) => {
             sendPushNotification(alert),
         ]);
 
-        await prisma.alert.update({
-            where: { id: alert.id },
-            data: { status: 'SENT', sentAt: new Date() },
-        });
-        logger.info(`Alert dispatched: ${alert.id} | ${alert.severity}`);
+        await Alert.findByIdAndUpdate(alert._id, { status: 'SENT', sentAt: new Date() });
+        logger.info(`Alert dispatched: ${alert._id} | ${alert.severity}`);
     } catch (err) {
         logger.error(`Alert dispatch failed: ${err.message}`);
-        await prisma.alert.update({
-            where: { id: alert.id },
-            data: { status: 'FAILED' },
-        });
+        await Alert.findByIdAndUpdate(alert._id, { status: 'FAILED' }).catch(() => { });
     }
 };
 
 // ── Email ────────────────────────────────────────────────────────────────────
-
 async function sendEmail(alert) {
-    if (!process.env.SENDGRID_API_KEY) {
-        logger.warn('SendGrid not configured — skipping email');
+    if (!process.env.SMTP_USER) {
+        logger.warn('SMTP not configured — skipping email');
         return;
     }
 
-    // Get GOV + HOSPITAL user emails
-    const users = await prisma.user.findMany({
-        where: { role: { in: ['GOV', 'HOSPITAL'] } },
-        select: { email: true },
-    });
-
+    const users = await User.find({ role: { $in: ['GOV', 'HOSPITAL'] } }).select('email');
     if (!users.length) return;
 
     const html = `
@@ -123,35 +107,29 @@ async function sendEmail(alert) {
   `;
 
     await transporter.sendMail({
-        from: process.env.SENDGRID_FROM_EMAIL || 'alerts@kavach.health',
-        to: users.map((u) => u.email).join(','),
+        from: process.env.SMTP_USER,
+        to: users.map(u => u.email).join(','),
         subject: `[Kavach] ${alert.severity} Alert — ${alert.outbreakCategory} Risk`,
         html,
     });
 }
 
 // ── Push Notifications ───────────────────────────────────────────────────────
-
 async function sendPushNotification(alert) {
     if (!firebaseAdmin) return;
 
-    // Get FCM tokens of citizens in the affected ward
-    const users = await prisma.user.findMany({
-        where: { wardId: alert.wardId, fcmToken: { not: null } },
-        select: { fcmToken: true },
-    });
-
+    const users = await User.find({ wardId: alert.wardId, fcmToken: { $ne: null } }).select('fcmToken');
     if (!users.length) return;
 
-    const tokens = users.map((u) => u.fcmToken).filter(Boolean);
+    const tokens = users.map(u => u.fcmToken).filter(Boolean);
     const message = {
         notification: {
             title: `⚠️ ${alert.severity} Health Alert`,
             body: `${alert.outbreakCategory} risk detected in your area. Stay alert.`,
         },
         data: {
-            alertId: alert.id,
-            wardId: alert.wardId,
+            alertId: String(alert._id),
+            wardId: String(alert.wardId),
             severity: alert.severity,
             category: alert.outbreakCategory,
         },
@@ -163,7 +141,6 @@ async function sendPushNotification(alert) {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
-
 function getRecommendedAction(category, severity) {
     const actions = {
         WATERBORNE: 'Boil water before use. Avoid tap water for drinking. Report to local water authority.',

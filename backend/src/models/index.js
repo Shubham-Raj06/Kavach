@@ -173,9 +173,9 @@ alertSchema.index({ severity: 1, status: 1 });
 
 // ─── Export models ───────────────────────────────────────────────────────────
 module.exports = {
-    User: mongoose.model('User', userSchema),
-    RefreshToken: mongoose.model('RefreshToken', refreshTokenSchema),
-    AuditLog: mongoose.model('AuditLog', auditLogSchema),
+    User: require('./User'),
+    RefreshToken: require('./RefreshToken'),
+    AuditLog: require('./AuditLog'),
     Ward: mongoose.model('Ward', wardSchema),
     Hospital: mongoose.model('Hospital', hospitalSchema),
     SyndromeMapping: mongoose.model('SyndromeMapping', syndromeMappingSchema),

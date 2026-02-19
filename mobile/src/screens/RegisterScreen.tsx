@@ -38,7 +38,9 @@ export default function RegisterScreen() {
             setToken(token);
             setUser(user);
         } catch (err: any) {
-            const msg = err.response?.data?.error ?? 'Registration failed.';
+            // api.js throws Error(msg), so err.message is the real error
+            // Fallback to err.response if not handled by api.js
+            const msg = err.message || err.response?.data?.error || 'Registration failed.';
             Alert.alert('Error', msg);
         } finally {
             setLoading(false);
@@ -63,7 +65,7 @@ export default function RegisterScreen() {
                         { label: 'Full Name', value: name, set: setName, placeholder: 'Rahul Sharma', type: 'default' },
                         { label: 'Email', value: email, set: setEmail, placeholder: 'you@example.com', type: 'email-address' },
                         { label: 'Password', value: password, set: setPassword, placeholder: '••••••••', type: 'default', secure: true },
-                        { label: 'Ward ID (optional)', value: wardId, set: setWardId, placeholder: 'e.g. W-12', type: 'default' },
+                        { label: 'Ward Number (1-272)', value: wardId, set: setWardId, placeholder: 'e.g. 12', type: 'numeric' },
                     ].map((f) => (
                         <View key={f.label} style={styles.field}>
                             <Text style={styles.label}>{f.label}</Text>

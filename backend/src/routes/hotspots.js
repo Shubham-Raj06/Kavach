@@ -4,40 +4,31 @@
  */
 const express = require('express');
 const router = express.Router();
-const prisma = require('../utils/prisma');
 const axios = require('axios');
+const { Ward, RiskPrediction } = require('../models');
 const logger = require('../utils/logger');
 
 const ML_URL = process.env.ML_SERVICE_URL || 'http://localhost:8000';
 
-/**
- * GET /api/hotspots
- * Fetches latest heatmap data, sends to ML /hotspots for DBSCAN clustering,
- * returns GeoJSON FeatureCollection for Mapbox.
- */
 router.get('/', async (req, res, next) => {
     try {
-        // Get latest risk score per ward
-        const wards = await prisma.ward.findMany({
-            include: {
-                riskPredictions: {
-                    orderBy: { predictedAt: 'desc' },
-                    take: 1,
-                    select: { riskScore: true, outbreakCategory: true },
-                },
-            },
+        const wards = await Ward.find({
+            latitude: { $exists: true },
+            longitude: { $exists: true },
         });
 
-        const wardData = wards
-            .filter(w => w.latitude && w.longitude)
-            .map(w => ({
-                wardId: w.id,
+        // Attach latest risk prediction to each ward
+        const wardData = await Promise.all(wards.map(async (w) => {
+            const latest = await RiskPrediction.findOne({ wardId: w._id }).sort({ createdAt: -1 });
+            return {
+                wardId: String(w._id),
                 name: w.name,
                 latitude: w.latitude,
                 longitude: w.longitude,
-                riskScore: w.riskPredictions[0]?.riskScore ?? 0,
-                outbreakCategory: w.riskPredictions[0]?.outbreakCategory ?? null,
-            }));
+                riskScore: latest?.riskScore ?? 0,
+                outbreakCategory: latest?.outbreakCategory ?? null,
+            };
+        }));
 
         // Call ML service for DBSCAN clustering
         try {

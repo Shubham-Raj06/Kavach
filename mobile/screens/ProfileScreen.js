@@ -1,85 +1,135 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import {
+    View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert
+} from 'react-native';
+import { ShieldCheck, MapPin, FileText, Award, LogOut, TrendingUp, User } from 'lucide-react-native';
 import useAuthStore from '../store/authStore';
 
-const ROLE_CONFIG = {
-    citizen: { emoji: '👤', color: '#00D4FF', label: 'Citizen' },
-    hospital: { emoji: '🏥', color: '#30D158', label: 'Hospital' },
-    govt: { emoji: '🏛️', color: '#FF9F0A', label: 'Government' },
-};
+const RISK_HISTORY = [
+    { day: 'M', level: 'LOW', height: 20 },
+    { day: 'T', level: 'LOW', height: 15 },
+    { day: 'W', level: 'MOD', height: 45 },
+    { day: 'T', level: 'MOD', height: 50 },
+    { day: 'F', level: 'HIGH', height: 80 },
+    { day: 'S', level: 'HIGH', height: 90 },
+    { day: 'S', level: 'MOD', height: 55 },
+];
 
-export default function ProfileScreen() {
+const BAR_COLOR = { LOW: '#2ECC71', MOD: '#F39C12', HIGH: '#E74C3C' };
+
+const ProfileScreen = () => {
     const { user, logout } = useAuthStore();
-    const cfg = ROLE_CONFIG[user?.role] || ROLE_CONFIG.citizen;
 
     const handleLogout = () => {
-        Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+        Alert.alert('Logout', 'Are you sure?', [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Sign Out', style: 'destructive', onPress: logout },
+            { text: 'Logout', style: 'destructive', onPress: logout },
         ]);
     };
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            {/* Avatar */}
-            <View style={styles.avatarSection}>
-                <View style={[styles.avatar, { backgroundColor: cfg.color + '22', borderColor: cfg.color + '44' }]}>
-                    <Text style={styles.avatarEmoji}>{cfg.emoji}</Text>
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+            {/* Header */}
+            <View style={styles.header}>
+                <View style={styles.avatarCircle}>
+                    <User size={36} color="#009688" />
                 </View>
-                <Text style={styles.name}>{user?.name}</Text>
-                <Text style={styles.email}>{user?.email}</Text>
-                <View style={[styles.roleBadge, { backgroundColor: cfg.color + '22', borderColor: cfg.color + '44' }]}>
-                    <Text style={[styles.roleText, { color: cfg.color }]}>{cfg.label}</Text>
+                <Text style={styles.name}>{user?.name || 'Shubham Raj'}</Text>
+                <Text style={styles.email}>{user?.email || 'rajshubham556@gmail.com'}</Text>
+                <View style={styles.wardBadge}>
+                    <MapPin size={14} color="#009688" />
+                    <Text style={styles.wardText}>Ward 12 — Seelampur, Delhi</Text>
                 </View>
             </View>
 
-            {/* Info cards */}
-            <View style={styles.infoCard}>
-                <InfoRow icon="location" label="Ward" value={`Ward ${user?.ward}`} />
-                <InfoRow icon="shield" label="Role" value={cfg.label} />
-                <InfoRow icon="calendar" label="Member since" value={user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long' }) : '—'} />
+            {/* Stats Row */}
+            <View style={styles.statsRow}>
+                <View style={styles.statCard}>
+                    <Text style={styles.statNum}>12</Text>
+                    <Text style={styles.statLabel}>Reports Filed</Text>
+                </View>
+                <View style={styles.statCard}>
+                    <Text style={styles.statNum}>HIGH</Text>
+                    <Text style={styles.statLabel}>Current Risk</Text>
+                </View>
+                <View style={styles.statCard}>
+                    <Text style={styles.statNum}>272</Text>
+                    <Text style={styles.statLabel}>Ward Rank</Text>
+                </View>
             </View>
 
-            {/* App info */}
-            <View style={styles.infoCard}>
-                <InfoRow icon="layers" label="App Version" value="2.0.0" />
-                <InfoRow icon="server" label="Backend" value="kavach-api" />
+            {/* Risk History Graph */}
+            <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                    <TrendingUp size={20} color="#009688" />
+                    <Text style={styles.cardTitle}>7-Day Ward Risk</Text>
+                </View>
+                <View style={styles.barChart}>
+                    {RISK_HISTORY.map((r, i) => (
+                        <View key={i} style={styles.barWrapper}>
+                            <View style={[styles.bar, { height: r.height, backgroundColor: BAR_COLOR[r.level] }]} />
+                            <Text style={styles.barLabel}>{r.day}</Text>
+                        </View>
+                    ))}
+                </View>
+            </View>
+
+            {/* Privacy Badge */}
+            <View style={[styles.card, { backgroundColor: '#E8F5E9' }]}>
+                <View style={styles.cardHeader}>
+                    <ShieldCheck size={20} color="#27AE60" />
+                    <Text style={[styles.cardTitle, { color: '#27AE60' }]}>Privacy Guarantee</Text>
+                </View>
+                <Text style={styles.privacyText}>
+                    Kavach never stores personal health data. Only anonymous ward-level signals are used for outbreak prediction. Your identity remains protected.
+                </Text>
+            </View>
+
+            {/* Achievements */}
+            <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                    <Award size={20} color="#F39C12" />
+                    <Text style={styles.cardTitle}>Civic Contributor</Text>
+                </View>
+                <Text style={styles.achieveText}>
+                    You are among the top 3% most active citizens in Ward 12. Your reports have helped flag 2 early outbreaks.
+                </Text>
             </View>
 
             {/* Logout */}
-            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
-                <Ionicons name="log-out-outline" size={18} color="#FF453A" />
+            <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+                <LogOut size={20} color="#E74C3C" />
                 <Text style={styles.logoutText}>Sign Out</Text>
             </TouchableOpacity>
+
+            <View style={{ height: 100 }} />
         </ScrollView>
     );
-}
-
-function InfoRow({ icon, label, value }) {
-    return (
-        <View style={styles.row}>
-            <Ionicons name={icon + '-outline'} size={16} color="#555" />
-            <Text style={styles.rowLabel}>{label}</Text>
-            <Text style={styles.rowValue}>{value}</Text>
-        </View>
-    );
-}
+};
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#0A0A0F' },
-    content: { padding: 20, paddingTop: 60, paddingBottom: 40 },
-    avatarSection: { alignItems: 'center', marginBottom: 28 },
-    avatar: { width: 90, height: 90, borderRadius: 45, justifyContent: 'center', alignItems: 'center', borderWidth: 2, marginBottom: 14 },
-    avatarEmoji: { fontSize: 40 },
-    name: { color: '#FFF', fontSize: 24, fontWeight: '800' },
-    email: { color: '#555', fontSize: 14, marginTop: 4 },
-    roleBadge: { marginTop: 10, paddingHorizontal: 14, paddingVertical: 5, borderRadius: 20, borderWidth: 1 },
-    roleText: { fontWeight: '700', fontSize: 13 },
-    infoCard: { backgroundColor: '#13131A', borderRadius: 16, padding: 4, marginBottom: 14, borderWidth: 1, borderColor: '#1E1E2E' },
-    row: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 14 },
-    rowLabel: { color: '#888', fontSize: 14, flex: 1 },
-    rowValue: { color: '#FFF', fontSize: 14, fontWeight: '600' },
-    logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: '#FF453A11', borderRadius: 14, padding: 16, borderWidth: 1, borderColor: '#FF453A33' },
-    logoutText: { color: '#FF453A', fontWeight: '700', fontSize: 15 },
+    container: { flex: 1, backgroundColor: '#F5F5F5' },
+    header: { backgroundColor: '#FFF', padding: 32, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#EEE' },
+    avatarCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#E0F2F1', justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+    name: { fontSize: 22, fontWeight: 'bold', color: '#222' },
+    email: { fontSize: 14, color: '#888', marginTop: 4 },
+    wardBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12, backgroundColor: '#E0F2F1', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20 },
+    wardText: { color: '#009688', fontWeight: '600', fontSize: 13 },
+    statsRow: { flexDirection: 'row', padding: 16, gap: 12 },
+    statCard: { flex: 1, backgroundColor: '#FFF', borderRadius: 12, padding: 16, alignItems: 'center', elevation: 2 },
+    statNum: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+    statLabel: { fontSize: 11, color: '#999', marginTop: 4, textAlign: 'center' },
+    card: { backgroundColor: '#FFF', marginHorizontal: 16, marginBottom: 14, borderRadius: 16, padding: 20, elevation: 2 },
+    cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 14 },
+    cardTitle: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+    barChart: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'flex-end', height: 100 },
+    barWrapper: { alignItems: 'center', gap: 6 },
+    bar: { width: 28, borderRadius: 6, minHeight: 8 },
+    barLabel: { fontSize: 12, color: '#999' },
+    privacyText: { fontSize: 14, color: '#555', lineHeight: 22 },
+    achieveText: { fontSize: 14, color: '#555', lineHeight: 22 },
+    logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginHorizontal: 16, backgroundColor: '#FFF', padding: 16, borderRadius: 14, borderWidth: 1, borderColor: '#FDECEA' },
+    logoutText: { color: '#E74C3C', fontWeight: 'bold', fontSize: 16 },
 });
+
+export default ProfileScreen;

@@ -2,10 +2,11 @@ import React, { useState, useRef } from 'react';
 import {
     View, Text, ScrollView, StyleSheet,
     TouchableOpacity, ActivityIndicator, Alert,
-    TextInput, Platform,
+    TextInput, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
+import * as ImagePicker from 'expo-image-picker';
 import { reportApi } from '../services/api';
 import { useUserStore } from '../store/userStore';
 import { colors, radius, spacing } from '../constants/theme';
@@ -22,12 +23,29 @@ export default function ReportScreen() {
     const [loading, setLoading] = useState(false);
     const [locating, setLocating] = useState(false);
     const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+    const [photoUri, setPhotoUri] = useState<string | null>(null);
     const lastSubmit = useRef<number>(0);
 
     const toggleSymptom = (id: string) => {
         setSymptoms(prev =>
             prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
         );
+    };
+
+    const handleTakePhoto = async () => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permission Denied', 'Camera access is needed to capture photo evidence.');
+            return;
+        }
+        const result = await ImagePicker.launchCameraAsync({
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 0.7,
+        });
+        if (!result.canceled && result.assets?.[0]?.uri) {
+            setPhotoUri(result.assets[0].uri);
+        }
     };
 
     const getLocation = async () => {
@@ -56,7 +74,6 @@ export default function ReportScreen() {
             Alert.alert('No ward assigned', 'Your account has no ward ID. Please update your profile.');
             return;
         }
-        // Dedup guard — prevent double-tap within 10s
         const now = Date.now();
         if (now - lastSubmit.current < 10000) {
             Alert.alert('Please wait', 'You just submitted a report. Wait a moment before submitting again.');
@@ -65,7 +82,6 @@ export default function ReportScreen() {
 
         let coords = location;
         if (!coords) {
-            // Try to get location silently
             try {
                 const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status === 'granted') {
@@ -83,7 +99,6 @@ export default function ReportScreen() {
 
         setLoading(true);
         try {
-            // Submit one report per selected symptom type
             await Promise.all(
                 symptoms.map(syndromeType =>
                     reportApi.submit({
@@ -93,6 +108,7 @@ export default function ReportScreen() {
                         syndromeType,
                         severity,
                         description: description.trim() || undefined,
+                        // photoUri stored locally — not uploaded
                     })
                 )
             );
@@ -101,6 +117,7 @@ export default function ReportScreen() {
             setSymptoms([]);
             setSeverity(1);
             setDescription('');
+            setPhotoUri(null);
         } catch (err: any) {
             const msg = err.response?.data?.error ?? 'Failed to submit report. Please try again.';
             Alert.alert('Error', msg);
@@ -146,9 +163,29 @@ export default function ReportScreen() {
                     </View>
                 </GlowCard>
 
+                {/* Photo Evidence */}
+                <GlowCard style={styles.section}>
+                    <Text style={styles.sectionTitle}>📸 Photo Evidence <Text style={styles.optional}>(optional)</Text></Text>
+
+                    {photoUri ? (
+                        <View style={styles.previewWrap}>
+                            <Image source={{ uri: photoUri }} style={styles.preview} resizeMode="cover" />
+                            <TouchableOpacity style={styles.removePhoto} onPress={() => setPhotoUri(null)}>
+                                <Text style={styles.removePhotoText}>✕ Remove</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                        <TouchableOpacity style={styles.photoBtnFull} onPress={handleTakePhoto} activeOpacity={0.8}>
+                            <Text style={styles.photoBtnIcon}>📷</Text>
+                            <Text style={styles.photoBtnText}>Click Photo</Text>
+                        </TouchableOpacity>
+                    )}
+                    <Text style={styles.photoHint}>Photo is stored locally for reference only — not uploaded</Text>
+                </GlowCard>
+
                 {/* Description */}
                 <GlowCard style={styles.section}>
-                    <Text style={styles.sectionTitle}>Additional notes (optional)</Text>
+                    <Text style={styles.sectionTitle}>Additional notes <Text style={styles.optional}>(optional)</Text></Text>
                     <TextInput
                         style={styles.textArea}
                         value={description}
@@ -198,7 +235,7 @@ export default function ReportScreen() {
                 </TouchableOpacity>
 
                 <Text style={styles.privacy}>🔒 Only ward-level data is stored. No personal information is shared.</Text>
-                <View style={{ height: 20 }} />
+                <View style={{ height: 30 }} />
             </ScrollView>
         </SafeAreaView>
     );
@@ -212,6 +249,7 @@ const styles = StyleSheet.create({
     subtitle: { fontSize: 13, color: colors.textMuted, marginBottom: spacing.lg },
     section: { marginBottom: spacing.md },
     sectionTitle: { fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: spacing.sm },
+    optional: { color: colors.textDim, fontWeight: '400' },
     severityRow: { flexDirection: 'row', gap: spacing.sm },
     severityBtn: {
         flex: 1, paddingVertical: 10, alignItems: 'center',
@@ -219,6 +257,24 @@ const styles = StyleSheet.create({
         borderWidth: 1, borderColor: colors.border,
     },
     severityNum: { fontSize: 16, fontWeight: '700', color: colors.textMuted },
+    // Photo
+    photoBtnFull: {
+        alignItems: 'center', paddingVertical: 22,
+        borderRadius: radius.md, borderWidth: 1, borderColor: colors.accent,
+        backgroundColor: colors.accentGlow, borderStyle: 'dashed',
+    },
+    photoBtnIcon: { fontSize: 28, marginBottom: 6 },
+    photoBtnText: { fontSize: 14, fontWeight: '700', color: colors.accent },
+    previewWrap: { position: 'relative' },
+    preview: { width: '100%', height: 180, borderRadius: radius.md },
+    removePhoto: {
+        position: 'absolute', top: 8, right: 8,
+        backgroundColor: 'rgba(0,0,0,0.6)', borderRadius: radius.full,
+        paddingHorizontal: 10, paddingVertical: 5,
+    },
+    removePhotoText: { color: '#fff', fontSize: 12, fontWeight: '600' },
+    photoHint: { fontSize: 11, color: colors.textDim, marginTop: 8 },
+    // Description
     textArea: {
         backgroundColor: colors.surfaceAlt, borderRadius: radius.md,
         borderWidth: 1, borderColor: colors.border,
@@ -226,6 +282,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14, paddingVertical: 10,
         minHeight: 80, textAlignVertical: 'top',
     },
+    // Location
     locText: { fontSize: 13, color: colors.green, marginBottom: spacing.sm },
     locHint: { fontSize: 13, color: colors.textDim, marginBottom: spacing.sm },
     locBtn: {
@@ -235,6 +292,7 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
     },
     locBtnText: { color: colors.accent, fontSize: 13, fontWeight: '600' },
+    // Submit
     submitBtn: {
         backgroundColor: colors.accent, borderRadius: radius.md,
         paddingVertical: 16, alignItems: 'center',

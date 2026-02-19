@@ -13,16 +13,17 @@ import HomeScreen from '../screens/HomeScreen';
 import AlertsScreen from '../screens/AlertsScreen';
 import ReportScreen from '../screens/ReportScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import CommunityScreen from '../screens/CommunityScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function TabIcon({ name, focused }: { name: string; focused: boolean }) {
     const icons: Record<string, string> = {
-        Home: '🏠', Alerts: '🔔', Report: '📝', Profile: '👤',
+        Home: '🏠', Alerts: '🔔', Report: '📝', Community: '💬', Profile: '👤',
     };
     return (
-        <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.4 }}>{icons[name]}</Text>
+        <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.35 }}>{icons[name] ?? '•'}</Text>
     );
 }
 
@@ -35,18 +36,19 @@ function AppTabs() {
                     backgroundColor: colors.surface,
                     borderTopColor: colors.border,
                     borderTopWidth: 1,
-                    height: 60,
-                    paddingBottom: 8,
+                    height: 65,
+                    paddingBottom: 10,
                 },
                 tabBarActiveTintColor: colors.accent,
                 tabBarInactiveTintColor: colors.textDim,
-                tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
+                tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
                 tabBarIcon: ({ focused }) => <TabIcon name={route.name} focused={focused} />,
             })}
         >
             <Tab.Screen name="Home" component={HomeScreen} />
             <Tab.Screen name="Alerts" component={AlertsScreen} />
             <Tab.Screen name="Report" component={ReportScreen} />
+            <Tab.Screen name="Community" component={CommunityScreen} />
             <Tab.Screen name="Profile" component={ProfileScreen} />
         </Tab.Navigator>
     );
@@ -70,7 +72,8 @@ export default function RootNavigator() {
         return (
             <View style={styles.splash}>
                 <Text style={styles.splashTitle}>⚡ Kavach</Text>
-                <ActivityIndicator color={colors.accent} style={{ marginTop: 16 }} />
+                <Text style={styles.splashSub}>Hyperlocal Safety Radar</Text>
+                <ActivityIndicator color={colors.accent} style={{ marginTop: 20 }} />
             </View>
         );
     }
@@ -88,6 +91,9 @@ const styles = StyleSheet.create({
         alignItems: 'center', justifyContent: 'center',
     },
     splashTitle: {
-        fontSize: 32, fontWeight: '800', color: colors.text, letterSpacing: -1,
+        fontSize: 36, fontWeight: '800', color: colors.text, letterSpacing: -1,
+    },
+    splashSub: {
+        fontSize: 14, color: colors.textMuted, marginTop: 6,
     },
 });

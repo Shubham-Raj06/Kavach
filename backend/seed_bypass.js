@@ -19,10 +19,11 @@ async function seedUser() {
             console.log('✅ User already exists:', email);
 
             // Update password just in case
-            existing.passwordHash = passwordHash;
+            existing.password = passwordHash; // Use 'password' field as per Schema, not passwordHash (legacy)
+            existing.role = 'citizen'; // Force role update (lowercase enum)
             existing.ward = 12; // Ensure valid ward
             await existing.save();
-            console.log('🔄 Password/Ward updated.');
+            console.log('🔄 Password/Ward/Role updated.');
         } else {
             const newUser = await User.create({
                 name: 'Shubham Raj',

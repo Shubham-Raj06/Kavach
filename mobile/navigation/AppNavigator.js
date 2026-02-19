@@ -3,7 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ActivityIndicator, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Activity, Map as MapIcon, Bell, PlusCircle, User, Building, ShieldCheck, MessageSquare } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons'; // Keep for fallbacks if needed
 
 import useAuthStore from '../store/authStore';
 import { onAlertNew, onRiskUpdate, onFeedPost } from '../services/socket';
@@ -14,8 +15,10 @@ import useFeedStore from '../store/feedStore';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 
-import HomeScreen from '../screens/HomeScreen';
+import CitizenHome from '../screens/CitizenHome'; // New Safety Radar
+import HomeScreen from '../screens/HomeScreen'; // Keep for Hospital/Govt for now
 import FeedScreen from '../screens/FeedScreen';
+import CommunityScreen from '../screens/CommunityScreen'; // New Chat
 import ReportScreen from '../screens/ReportScreen';
 import AlertsScreen from '../screens/AlertsScreen';
 import MapScreen from '../screens/MapScreen';
@@ -31,67 +34,138 @@ const DARK = '#0A0A0F';
 const ACCENT = '#00D4FF';
 const CARD = '#13131A';
 
-const tabIcon = (name, focused) => {
-    const icons = {
-        Home: focused ? 'home' : 'home-outline',
-        Feed: focused ? 'newspaper' : 'newspaper-outline',
-        Report: focused ? 'add-circle' : 'add-circle-outline',
-        Alerts: focused ? 'notifications' : 'notifications-outline',
-        Map: focused ? 'map' : 'map-outline',
-        Awareness: focused ? 'book' : 'book-outline',
-        Profile: focused ? 'person' : 'person-outline',
-        Hospital: focused ? 'medical' : 'medical-outline',
-        Govt: focused ? 'business' : 'business-outline',
-    };
-    return icons[name] || 'ellipse';
-};
+// ─── Legacy styling removed ───────────────────────────────────────────────────
 
+// ─── Shared Tab Styling ───────────────────────────────────────────────────────
 const TAB_OPTS = {
-    tabBarActiveTintColor: ACCENT,
-    tabBarInactiveTintColor: '#555',
-    tabBarStyle: { backgroundColor: CARD, borderTopColor: '#1E1E2E', height: 60 },
-    tabBarLabelStyle: { fontSize: 10, marginBottom: 4 },
+    tabBarActiveTintColor: '#009688',
+    tabBarInactiveTintColor: '#999',
+    tabBarStyle: { height: 60, paddingBottom: 8, paddingTop: 8, backgroundColor: '#FFFFFF', borderTopColor: '#F0F0F0' },
+    tabBarLabelStyle: { fontSize: 10, fontWeight: '500' },
     headerShown: false,
 };
 
-const tabScreenOptions = ({ route }) => ({
-    ...TAB_OPTS,
-    tabBarIcon: ({ focused, color, size }) => (
-        <Ionicons name={tabIcon(route.name, focused)} size={size} color={color} />
-    ),
-});
-
 function CitizenTabs() {
     return (
-        <Tab.Navigator screenOptions={tabScreenOptions}>
-            <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Feed" component={FeedScreen} />
-            <Tab.Screen name="Report" component={ReportScreen} />
-            <Tab.Screen name="Alerts" component={AlertsScreen} />
-            <Tab.Screen name="Map" component={MapScreen} />
-            <Tab.Screen name="Awareness" component={AwarenessScreen} />
-            <Tab.Screen name="Profile" component={ProfileScreen} />
+        <Tab.Navigator screenOptions={TAB_OPTS}>
+            <Tab.Screen
+                name="Home"
+                component={CitizenHome}
+                options={{
+                    tabBarLabel: 'Safety',
+                    tabBarIcon: ({ color, size }) => <Activity color={color} size={size} />
+                }}
+            />
+            <Tab.Screen
+                name="Map"
+                component={MapScreen}
+                options={{
+                    tabBarLabel: 'Map',
+                    tabBarIcon: ({ color, size }) => <MapIcon color={color} size={size} />
+                }}
+            />
+            <Tab.Screen
+                name="Community"
+                component={CommunityScreen}
+                options={{
+                    tabBarLabel: 'Chat',
+                    tabBarIcon: ({ color, size }) => <MessageSquare color={color} size={size} />
+                }}
+            />
+            <Tab.Screen
+                name="Report"
+                component={ReportScreen}
+                options={{
+                    tabBarLabel: 'Report',
+                    tabBarIcon: ({ color, size }) => <PlusCircle color={color} size={32} />
+                }}
+            />
+            <Tab.Screen
+                name="Alerts"
+                component={AlertsScreen}
+                options={{
+                    tabBarLabel: 'Alerts',
+                    tabBarIcon: ({ color, size }) => <Bell color={color} size={size} />
+                }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{
+                    tabBarLabel: 'Profile',
+                    tabBarIcon: ({ color, size }) => <User color={color} size={size} />
+                }}
+            />
         </Tab.Navigator>
     );
 }
 
 function HospitalTabs() {
     return (
-        <Tab.Navigator screenOptions={tabScreenOptions}>
-            <Tab.Screen name="Home" component={HomeScreen} />
-            <Tab.Screen name="Hospital" component={HospitalScreen} />
-            <Tab.Screen name="Alerts" component={AlertsScreen} />
-            <Tab.Screen name="Profile" component={ProfileScreen} />
+        <Tab.Navigator screenOptions={TAB_OPTS}>
+            <Tab.Screen
+                name="Home"
+                component={HomeScreen}
+                options={{
+                    tabBarLabel: 'Dashboard',
+                    tabBarIcon: ({ color, size }) => <Activity color={color} size={size} />
+                }}
+            />
+            <Tab.Screen
+                name="Hospital"
+                component={HospitalScreen}
+                options={{
+                    tabBarLabel: 'Admissions',
+                    tabBarIcon: ({ color, size }) => <Building color={color} size={size} />
+                }}
+            />
+            <Tab.Screen
+                name="Alerts"
+                component={AlertsScreen}
+                options={{
+                    tabBarLabel: 'Alerts',
+                    tabBarIcon: ({ color, size }) => <Bell color={color} size={size} />
+                }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{
+                    tabBarLabel: 'Profile',
+                    tabBarIcon: ({ color, size }) => <User color={color} size={size} />
+                }}
+            />
         </Tab.Navigator>
     );
 }
 
 function GovtTabs() {
     return (
-        <Tab.Navigator screenOptions={tabScreenOptions}>
-            <Tab.Screen name="Govt" component={GovtScreen} />
-            <Tab.Screen name="Alerts" component={AlertsScreen} />
-            <Tab.Screen name="Profile" component={ProfileScreen} />
+        <Tab.Navigator screenOptions={TAB_OPTS}>
+            <Tab.Screen
+                name="Govt"
+                component={GovtScreen}
+                options={{
+                    tabBarLabel: 'City View',
+                    tabBarIcon: ({ color, size }) => <MapIcon color={color} size={size} />
+                }}
+            />
+            <Tab.Screen
+                name="Alerts"
+                component={AlertsScreen}
+                options={{
+                    tabBarLabel: 'Broadcast',
+                    tabBarIcon: ({ color, size }) => <Bell color={color} size={size} />
+                }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{
+                    tabBarLabel: 'Profile',
+                    tabBarIcon: ({ color, size }) => <ShieldCheck color={color} size={size} />
+                }}
+            />
         </Tab.Navigator>
     );
 }
@@ -121,9 +195,10 @@ function MainApp() {
         };
     }, [user?.id]); // re-subscribe when user identity changes
 
-    // New backend: role is uppercase CITIZEN / HOSPITAL / GOV
-    if (user?.role === 'HOSPITAL') return <HospitalTabs />;
-    if (user?.role === 'GOV') return <GovtTabs />;
+    // New backend: role is uppercase or lowercase, normalize
+    const role = user?.role?.toUpperCase();
+    if (role === 'HOSPITAL') return <HospitalTabs />;
+    if (role === 'GOV' || role === 'GOVT') return <GovtTabs />;
     return <CitizenTabs />;
 }
 

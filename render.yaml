@@ -1,0 +1,37 @@
+services:
+  # ── ML Microservice (Python/FastAPI) ────────────────────────────────────────
+  - type: web
+    name: kavach-ml
+    runtime: python
+    region: singapore
+    plan: free
+    repo: https://github.com/Shubham-Raj06/Kavach
+    branch: main
+    rootDir: ml-service
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.18
+      - key: PORT
+        value: 10000
+
+  # ── Backend API (Node.js/Express) ───────────────────────────────────────────
+  - type: web
+    name: kavach-backend
+    runtime: node
+    region: singapore
+    plan: free
+    repo: https://github.com/Shubham-Raj06/Kavach
+    branch: main
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: ML_SERVICE_URL
+        fromService:
+          type: web
+          name: kavach-ml
+          property: url

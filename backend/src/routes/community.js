@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const auth = require('../middleware/auth');
+const { requireAuth: auth } = require('../middleware/auth');
 const community = require('../controllers/communityController');
 const { rateLimitByUser } = require('../middleware/rateLimitByUser');
 const { validate, citizenPostSchema } = require('../validation/schemas');

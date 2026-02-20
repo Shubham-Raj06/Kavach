@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middleware/auth');
+const { requireAuth: auth } = require('../middleware/auth');
 const ward = require('../controllers/wardController');
 
 // Public (auth required for all)

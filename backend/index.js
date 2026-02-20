@@ -140,9 +140,24 @@ app.use('/api/governance', governanceRoutes); // Phase 8 — model governance
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'Kavach API Docs',
   customCss: '.swagger-ui .topbar { background: #0f172a; } .swagger-ui .topbar-wrapper img { content: none; } .swagger-ui .topbar-wrapper::before { content: "🛡️ Kavach API"; color: white; font-size: 20px; font-weight: bold; }',
+  customCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.0.0/swagger-ui.min.css',
+  customJs: [
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.0.0/swagger-ui-bundle.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.0.0/swagger-ui-standalone-preset.js'
+  ],
   swaggerOptions: { persistAuthorization: true },
 }));
 app.get('/api-docs.json', (req, res) => res.json(swaggerSpec));
+
+// ─── Root Route (Vercel Fix) ──────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: '🛡️ Kavach Backend is running',
+    docs: '/api-docs',
+    time: new Date().toISOString()
+  });
+});
 
 // ─── 404 Handler ───────────────────────────────────────────────────────────
 app.use((req, res) => {
@@ -168,4 +183,5 @@ server.listen(PORT, () => {
   logger.info(`🔄 Job scheduler started — weather(3h), water(24h), features+ML(1h), drift(6h)`);
 });
 
-module.exports = { app, server, io };
+module.exports = app;
+// module.exports = { app, server, io }; // Legacy export for local dev

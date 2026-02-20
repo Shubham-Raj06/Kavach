@@ -99,6 +99,7 @@ export const ROUTE_ROLES = {
     '/login': [],
     '/signup': [],
     '/': [],
+    '/healthmap': [],
     '/unauthorized': [],
 };
 

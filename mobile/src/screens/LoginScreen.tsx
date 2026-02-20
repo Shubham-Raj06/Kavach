@@ -15,6 +15,31 @@ export default function LoginScreen() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [demoLoading, setDemoLoading] = useState<string | null>(null);
+
+    const DEMO_ROLES = [
+        { role: 'CITIZEN', label: '👤 Citizen', color: '#00D4FF' },
+        { role: 'HOSPITAL', label: '🏥 Hospital', color: '#00FF88' },
+        { role: 'GOV', label: '🏛️ Govt', color: '#FF6B35' },
+    ];
+
+    const handleDemoLogin = async (role: string) => {
+        setDemoLoading(role);
+        try {
+            await new Promise(r => setTimeout(r, 500)); // simulate delay
+            setToken('demo_token');
+            setUser({
+                id: `demo_${role.toLowerCase()}`,
+                name: `Demo ${role}`,
+                email: `${role.toLowerCase()}@demo.in`,
+                role: role as any,
+                wardId: role === 'GOV' ? null : '12',
+                isActive: true
+            });
+        } finally {
+            setDemoLoading(null);
+        }
+    };
 
     const handleLogin = async () => {
         if (!email.trim() || !password.trim()) {
@@ -61,6 +86,34 @@ export default function LoginScreen() {
                     <Text style={styles.tagline}>AI Disease Outbreak Intelligence</Text>
                 </View>
 
+                {/* DEMO BYPASS */}
+                <View style={styles.demoBox}>
+                    <Text style={styles.demoTitle}>⚡ Quick Demo</Text>
+                    <Text style={styles.demoHint}>Explore all roles instantly — no signup needed</Text>
+                    <View style={styles.demoRow}>
+                        {DEMO_ROLES.map(({ role, label, color }) => (
+                            <TouchableOpacity
+                                key={role}
+                                style={[styles.demoBtn, { borderColor: color }]}
+                                onPress={() => handleDemoLogin(role)}
+                                disabled={!!demoLoading || loading}
+                                activeOpacity={0.7}
+                            >
+                                {demoLoading === role
+                                    ? <ActivityIndicator size="small" color={color} />
+                                    : <Text style={[styles.demoBtnText, { color }]}>{label}</Text>
+                                }
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </View>
+
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={styles.logo}>⚡ Kavach</Text>
+                    <Text style={styles.tagline}>AI Disease Outbreak Intelligence</Text>
+                </View>
+
                 {/* Card */}
                 <View style={styles.card}>
                     <Text style={styles.title}>Sign In</Text>
@@ -97,6 +150,47 @@ export default function LoginScreen() {
                         disabled={loading}
                         activeOpacity={0.8}
                     >
+    
+    // Demo Box
+    demoBox: {
+        backgroundColor: '#0F0F17',
+        borderRadius: 16,
+        padding: 16,
+        borderWidth: 1,
+        borderColor: '#1C1C2E',
+        marginBottom: 24,
+    },
+    demoTitle: {
+        color: colors.text,
+        fontSize: 14,
+        fontWeight: '700',
+        marginBottom: 3,
+    },
+    demoHint: {
+        color: colors.textDim,
+        fontSize: 11,
+        marginBottom: 14,
+        lineHeight: 16,
+    },
+    demoRow: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    demoBtn: {
+        flex: 1,
+        borderWidth: 1.5,
+        borderRadius: 10,
+        paddingVertical: 10,
+        alignItems: 'center',
+        backgroundColor: '#07070D',
+        minHeight: 38,
+        justifyContent: 'center',
+    },
+    demoBtnText: {
+        fontWeight: '700',
+        fontSize: 11,
+    },
+    
                         {loading
                             ? <ActivityIndicator color="#fff" />
                             : <Text style={styles.btnText}>Sign In</Text>

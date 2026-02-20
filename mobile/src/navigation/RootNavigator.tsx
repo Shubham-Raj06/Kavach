@@ -15,6 +15,9 @@ import ReportScreen from '../screens/ReportScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import CommunityScreen from '../screens/CommunityScreen';
 
+// Import new CitizenHome with DiseaseWeatherCard
+import CitizenHome from '../../screens/CitizenHome';
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -45,7 +48,7 @@ function AppTabs() {
                 tabBarIcon: ({ focused }) => <TabIcon name={route.name} focused={focused} />,
             })}
         >
-            <Tab.Screen name="Home" component={HomeScreen} />
+            <Tab.Screen name="Home" component={CitizenHome} />
             <Tab.Screen name="Alerts" component={AlertsScreen} />
             <Tab.Screen name="Report" component={ReportScreen} />
             <Tab.Screen name="Community" component={CommunityScreen} />

@@ -8,6 +8,7 @@ import { Shield, Map, ChevronRight, AlertCircle, Droplets, Bug, Thermometer, Act
 import { useNavigation } from '@react-navigation/native';
 import RiskRadar from '../components/RiskRadar';
 import InsightBox from '../components/InsightBox';
+import DiseaseWeatherCard from '../components/DiseaseWeatherCard';
 
 const DEMO_SCENARIOS = [
     {
@@ -99,31 +100,39 @@ const CitizenHome = () => {
         setTimeout(() => { cycleDemo(); setRefreshing(false); }, 900);
     };
 
+    const handleMapPress = () => {
+        navigation.navigate('Map');
+    };
+
     return (
         <ScrollView
             style={styles.container}
             showsVerticalScrollIndicator={false}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#009688" />}
         >
-            {/* Header */}
-            <LinearGradient colors={data.gradient} style={styles.header}>
-                <View style={styles.topBar}>
-                    <View>
-                        <Text style={styles.greeting}>Safety Radar 🛡️</Text>
-                        <Text style={styles.wardName}>{data.ward}</Text>
-                    </View>
-                    <TouchableOpacity onPress={cycleDemo} style={styles.cycleBtnWrap}>
-                        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
-                            <Shield color={data.level === 'HIGH' ? '#E74C3C' : '#009688'} size={30} />
-                        </Animated.View>
-                    </TouchableOpacity>
-                </View>
-
-                <RiskRadar riskLevel={data.level} score={data.score} lastUpdated="Live" />
-
-                <Text style={styles.tagline}>{data.tagline}</Text>
-                <Text style={styles.demoHint}>Tap shield or pull-down to cycle demo scenarios</Text>
-            </LinearGradient>
+            {/* Disease Weather Card - Top Hero Section */}
+            <DiseaseWeatherCard
+                score={data.score}
+                location={{
+                    name: data.ward.split('—')[1]?.trim() || 'Delhi',
+                    ward: data.ward,
+                    riskScore: data.score,
+                    condition: data.label,
+                    high: Math.round(data.score * 1.2),
+                    low: Math.round(data.score * 0.6),
+                    aqi: 271,
+                    aqiStatus: 'Poor',
+                    forecast: [
+                        { time: 'Now', temp: data.score, score: data.score, condition: '☀️' },
+                        { time: '2PM', temp: data.score + 2, score: data.score + 3, condition: '☀️' },
+                        { time: '3PM', temp: data.score + 3, score: data.score + 5, condition: '⛅' },
+                        { time: '4PM', temp: data.score + 1, score: data.score - 1, condition: '⛅' },
+                        { time: '5PM', temp: data.score - 1, score: data.score - 3, condition: '☀️' },
+                        { time: '6PM', temp: data.score - 3, score: data.score - 5, condition: '☀️' },
+                    ],
+                }}
+                onMapPress={handleMapPress}
+            />
 
             {/* AI Insights */}
             <View style={styles.sectionRow}>
@@ -173,8 +182,8 @@ const CitizenHome = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#F5F5F5' },
-    header: { paddingTop: 55, paddingBottom: 24, borderBottomLeftRadius: 32, borderBottomRightRadius: 32 },
+    container: { flex: 1, backgroundColor: '#0f172a' },
+    header: { paddingTop: 55, paddingBottom: 24, borderBottomLeftRadius: 32, borderBottomRightRadius: 32, display: 'none' },
     topBar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, marginBottom: 4 },
     greeting: { fontSize: 13, fontWeight: '600', color: '#777' },
     wardName: { fontSize: 20, fontWeight: 'bold', color: '#222' },
@@ -182,21 +191,21 @@ const styles = StyleSheet.create({
     tagline: { textAlign: 'center', color: '#444', fontSize: 14, marginTop: 8, paddingHorizontal: 24 },
     demoHint: { textAlign: 'center', color: '#AAA', fontSize: 10, marginTop: 6 },
     sectionRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, marginTop: 24, marginBottom: 10, gap: 8 },
-    sectionTitle: { fontSize: 17, fontWeight: 'bold', color: '#222', flex: 1 },
+    sectionTitle: { fontSize: 17, fontWeight: 'bold', color: '#e2e8f0', flex: 1 },
     betaBadge: { backgroundColor: '#6C5CE7', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 },
     betaText: { fontSize: 9, color: '#FFF', fontWeight: 'bold' },
-    card: { backgroundColor: '#FFF', marginHorizontal: 16, marginTop: 8, padding: 20, borderRadius: 20, elevation: 3, borderWidth: 1, borderColor: '#F0F0F0' },
-    cardTitle: { fontSize: 16, fontWeight: '700', color: '#333', marginBottom: 14 },
+    card: { backgroundColor: '#1e293b', marginHorizontal: 16, marginTop: 8, padding: 20, borderRadius: 20, elevation: 3, borderWidth: 1, borderColor: '#334155' },
+    cardTitle: { fontSize: 16, fontWeight: '700', color: '#e2e8f0', marginBottom: 14 },
     tipRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 12 },
     tipIcon: { width: 34, height: 34, borderRadius: 17, justifyContent: 'center', alignItems: 'center' },
-    tipText: { fontSize: 14, color: '#444', flex: 1 },
+    tipText: { fontSize: 14, color: '#cbd5e1', flex: 1 },
     mapCard: { marginHorizontal: 16, marginTop: 16, borderRadius: 18, overflow: 'hidden' },
     mapGradient: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 18, gap: 14 },
     mapTitle: { color: '#FFF', fontWeight: 'bold', fontSize: 15 },
-    mapSub: { color: '#AAA', fontSize: 12, marginTop: 2 },
-    communityTeaser: { marginHorizontal: 16, marginTop: 14, backgroundColor: '#FFF', padding: 18, borderRadius: 16, borderLeftWidth: 4, borderLeftColor: '#009688', elevation: 2 },
-    teaserTitle: { fontWeight: 'bold', color: '#222', fontSize: 15 },
-    teaserSub: { color: '#009688', marginTop: 4, fontSize: 13 },
+    mapSub: { color: '#cbd5e1', fontSize: 12, marginTop: 2 },
+    communityTeaser: { marginHorizontal: 16, marginTop: 14, backgroundColor: '#1e293b', padding: 18, borderRadius: 16, borderLeftWidth: 4, borderLeftColor: '#10b981', elevation: 2, borderWidth: 1, borderColor: '#334155' },
+    teaserTitle: { fontWeight: 'bold', color: '#e2e8f0', fontSize: 15 },
+    teaserSub: { color: '#10b981', marginTop: 4, fontSize: 13 },
 });
 
 export default CitizenHome;

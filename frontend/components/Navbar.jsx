@@ -72,6 +72,7 @@ export default function Navbar({ alerts = [] }) {
             <nav style={{ display: 'flex', gap: 2, fontSize: 16 }}>
                 {[
                     { name: 'Dashboard', path: '/dashboard' },
+                    { name: 'Health Map', path: '/healthmap' },
                     { name: 'Alerts', path: '/alerts' },
                 ].map(item => {
                     const isActive = router.pathname === item.path;
